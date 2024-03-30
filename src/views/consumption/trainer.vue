@@ -82,7 +82,6 @@
         <el-form-item label="结束时间" prop="endDate" :label-width="formLabelWidth">
           <el-date-picker v-model="memberTrainerForm.endDate" type="date" placeholder="选择日期" :formatter="dateFormat">
           </el-date-picker>
-          <!-- <el-input v-model="memberTrainerForm.endDate" autocomplete="off"></el-input> -->
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

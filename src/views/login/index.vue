@@ -12,7 +12,7 @@
         </span>
         <el-input
           ref="username"
-          v-model="loginForm.id"
+          v-model="loginForm.account"
           placeholder="用户名"
           name="username"
           type="text"
@@ -69,8 +69,8 @@ export default {
     }
     return {
       loginForm: {
-        account: 'admin',//测试方便
-        password: '123456'
+        account: '',//测试方便
+        password: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],

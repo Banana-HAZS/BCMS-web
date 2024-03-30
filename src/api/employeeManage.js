@@ -8,7 +8,7 @@ export default{
       params:{
         pageNo: searchModel.pageNo,
         pageSize: searchModel.pageSize,
-        id: searchModel.id,
+        account: searchModel.account,
         name: searchModel.name,
         phone: searchModel.phone
       }
