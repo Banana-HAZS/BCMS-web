@@ -7,7 +7,7 @@
           <el-input v-model="searchModel.id" placeholder="会员号" clearable></el-input>
           <el-input v-model="searchModel.name" placeholder="姓名" clearable></el-input>
           <el-input v-model="searchModel.phone" placeholder="电话" clearable></el-input>
-          <el-button @click="getMemberList" type="primary" round icon="el-icon-search">查询</el-button>
+          <el-button @click="getCustomerList" type="primary" round icon="el-icon-search">查询</el-button>
         </el-col>
         <el-col :span="4" align="right">
           <el-button @click="openEditUI(null)" type="primary" round icon="el-icon-plus" circle></el-button>
@@ -17,7 +17,7 @@
 
     <!-- 结果列表 -->
     <el-card>
-      <el-table :data="memberList" stripe style="width: 100%">
+      <el-table :data="customerList" stripe style="width: 100%">
         <el-table-column label="#" width="100">
           <template slot-scope="scope">
             {{ (searchModel.pageNo - 1) * searchModel.pageSize + scope.$index + 1 }}
@@ -38,7 +38,7 @@
         <el-table-column label="操作" width="120">
           <template slot-scope="scope">
             <el-button @click="openEditUI(scope.row.id)" type="primary" icon="el-icon-edit" circle size="mini"></el-button>
-            <el-button @click="deleteMember(scope.row)" type="danger" icon="el-icon-delete" circle size="mini"></el-button>
+            <el-button @click="deleteCustomer(scope.row)" type="danger" icon="el-icon-delete" circle size="mini"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -52,32 +52,32 @@
 
     <!-- 用户信息编辑对话框 -->
     <el-dialog @close="clearForm" :title="title" :visible.sync="dialogFormVisible">
-      <el-form :model="memberForm" ref="memberFormRef" :rules="rules">
+      <el-form :model="customerForm" ref="customerFormRef" :rules="rules">
         <el-form-item label="姓名" prop="name" :label-width="formLabelWidth">
-          <el-input v-model="memberForm.name" autocomplete="off"></el-input>
+          <el-input v-model="customerForm.name" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item v-if="memberForm.id == null || memberForm.id == undefined" label="密码" prop="password" :label-width="formLabelWidth">
-          <el-input type="password" v-model="memberForm.password" autocomplete="off"></el-input>
+        <el-form-item v-if="customerForm.id == null || customerForm.id == undefined" label="密码" prop="password" :label-width="formLabelWidth">
+          <el-input type="password" v-model="customerForm.password" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item v-if="memberForm.id == null || memberForm.id == undefined" label="确认密码" prop="passwordCheck" :label-width="formLabelWidth">
-          <el-input type="password" v-model="memberForm.passwordCheck" autocomplete="off"></el-input>
+        <el-form-item v-if="customerForm.id == null || customerForm.id == undefined" label="确认密码" prop="passwordCheck" :label-width="formLabelWidth">
+          <el-input type="password" v-model="customerForm.passwordCheck" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="性别" :label-width="formLabelWidth">
-          <el-radio-group v-model="memberForm.gender">
+          <el-radio-group v-model="customerForm.gender">
             <el-radio label="男"></el-radio>
             <el-radio label="女"></el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="年龄" :label-width="formLabelWidth">
-          <el-input v-model="memberForm.age" autocomplete="off"></el-input>
+          <el-input v-model="customerForm.age" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="电话" prop="phone" :label-width="formLabelWidth">
-          <el-input v-model="memberForm.phone" autocomplete="off"></el-input>
+          <el-input v-model="customerForm.phone" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="saveMember">确 定</el-button>
+        <el-button type="primary" @click="saveCustomer">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import memberApi from '@/api/memberManage' //导入Api
+import customerApi from '@/api/customerManage' //导入Api
 import moment from 'moment' //导入日期处理包
 export default {
   data() { //数据处理
@@ -99,7 +99,7 @@ export default {
     var validatePass = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请再次输入密码'));
-      } else if (value !== this.memberForm.password) {
+      } else if (value !== this.customerForm.password) {
         callback(new Error('两次输入密码不一致!'));
       } else {
         callback();
@@ -107,7 +107,7 @@ export default {
     };
     return { //简单变量
       formLabelWidth: '130px',
-      memberForm: {
+      customerForm: {
 
       },
       dialogFormVisible: false,
@@ -117,7 +117,7 @@ export default {
         pageNo: 1,
         pageSize: 10
       },
-      memberList: [],
+      customerList: [],
       rules: {
         name: [
           { required: true, message: '请输入姓名', trigger: 'blur' }
@@ -137,18 +137,18 @@ export default {
     }
   },
   methods: { //定义方法
-    deleteMember(member){
-      this.$confirm(`您确认删除用户 ${member.name} ?`, '提示', {
+    deleteCustomer(customer){
+      this.$confirm(`您确认删除用户 ${customer.name} ?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          memberApi.deleteMemberById(member.id).then(response=>{
+          customerApi.deleteCustomerById(customer.id).then(response=>{
             this.$message({
             type: 'success',
             message: response.message
           });
-          this.getMemberList();
+          this.getCustomerList();
           })
         }).catch(() => {
           this.$message({
@@ -167,12 +167,12 @@ export default {
       // 这里的格式根据需求修改
       return moment(date).format('YYYY-MM-DD HH:mm:ss')
     },
-    saveMember() {
+    saveCustomer() {
       //触发表单验证
-      this.$refs.memberFormRef.validate((valid) => {//valid就是验证结果
+      this.$refs.customerFormRef.validate((valid) => {//valid就是验证结果
         if (valid) {
           //提交请求给后台
-          memberApi.saveMember(this.memberForm).then(response => {
+          customerApi.saveCustomer(this.customerForm).then(response => {
             //已经提交成功，then里面是提交之后要做的处理,response是后端返回的内容
             //成功提示
             this.$message({
@@ -182,7 +182,7 @@ export default {
             //关闭对话框
             this.dialogFormVisible = false;
             //刷新展示表格
-            this.getMemberList();
+            this.getCustomerList();
           })
         } else {
           console.log('error submit!!');
@@ -191,8 +191,8 @@ export default {
       });
     },
     clearForm() {
-      this.memberForm = {};
-      this.$refs.memberFormRef.clearValidate();
+      this.customerForm = {};
+      this.$refs.customerFormRef.clearValidate();
     },
     openEditUI(id) {
       if(id==null){
@@ -200,29 +200,29 @@ export default {
       }else{
         this.title = '修改用户';
         //根据id查询用户数据
-        memberApi.getMemberById(id).then(response =>{
-          this.memberForm=response.data;
+        customerApi.getCustomerById(id).then(response =>{
+          this.customerForm=response.data;
         });
       }
       this.dialogFormVisible = true;
     },
     handleSizeChange(pageSize) {
       this.searchModel.pageSize = pageSize;
-      this.getMemberList();
+      this.getCustomerList();
     },
     handleCurrentChange(pageNo) {
       this.searchModel.pageNo = pageNo;
-      this.getMemberList();
+      this.getCustomerList();
     },
-    getMemberList() {
-      memberApi.getMemberList(this.searchModel).then(response => {
-        this.memberList = response.data.rows;
+    getCustomerList() {
+      customerApi.getCustomerList(this.searchModel).then(response => {
+        this.customerList = response.data.rows;
         this.total = response.data.total;
       });
     }
   },
   created() {
-    this.getMemberList();
+    this.getCustomerList();
   }
 }
 </script>
@@ -236,4 +236,4 @@ export default {
 .el-dialog .el-input {
   width: 85%;
 }
-</style>
+</style>@/api/customerManage

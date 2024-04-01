@@ -1,9 +1,9 @@
 import request from '@/utils/request'
 
 export default{
-  getMemberList(searchModel){
+  getCustomerList(searchModel){
     return request({
-      url: '/info/member/list',
+      url: '/info/customer/list',
       method: 'get',
       params:{
         pageNo: searchModel.pageNo,
@@ -14,35 +14,35 @@ export default{
       }
     });
   },
-  addMember(member){
+  addCustomer(customer){
     return request({
-      url: '/info/member',
+      url: '/info/customer',
       method: 'post',
-      data: member //参数
+      data: customer //参数
     });
   },
-  getMemberById(id){
+  getCustomerById(id){
     return request({
-      url: `/info/member/${id}`,
+      url: `/info/customer/${id}`,
       method: 'get'
     });
   },
-  updateMember(member){
+  updateCustomer(customer){
     return request({
-      url: '/info/member',
+      url: '/info/customer',
       method: 'put',
-      data: member //参数
+      data: customer //参数
     });
   },
-  saveMember(member){
-    if(member.id==null && member.id == undefined){
-      return this.addMember(member);
+  saveCustomer(customer){
+    if(customer.id==null && customer.id == undefined){
+      return this.addCustomer(customer);
     }
-    return this.updateMember(member);
+    return this.updateCustomer(customer);
   },
-  deleteMemberById(id){
+  deleteCustomerById(id){
     return request({
-      url: `/info/member/${id}`,
+      url: `/info/customer/${id}`,
       method: 'delete'
     });
   },

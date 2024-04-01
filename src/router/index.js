@@ -58,15 +58,15 @@ export const constantRoutes = [
   {
     path: '/info',
     component: Layout,
-    redirect: '/info/member',
+    redirect: '/info/customer',
     name: 'infoManage',
     meta: { title: '信息管理', icon: 'el-icon-s-help' },
     children: [
       {
-        path: 'member',
-        name: 'member',
-        component: () => import('@/views/info/member'),
-        meta: { title: '会员', icon: 'member' }
+        path: 'customer',
+        name: 'customer',
+        component: () => import('@/views/info/customer'),
+        meta: { title: '客户', icon: 'customer' }
       },
       {
         path: 'trainer',

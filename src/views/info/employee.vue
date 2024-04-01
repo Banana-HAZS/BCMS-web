@@ -139,7 +139,7 @@
         <el-form-item label="联系方式" prop="phone" :label-width="formLabelWidth">
           <el-input v-model="employeeForm.phone" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" :label-width="formLabelWidth">
+        <el-form-item label="邮箱" prop="email" :label-width="formLabelWidth">
           <el-input v-model="employeeForm.email" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
@@ -171,8 +171,15 @@ export default {
       }
       callback();
     };
+    var checkIdCard = (rule, value, callback) => {
+      var reg = /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/;
+      if (!reg.test(value)) {
+        return callback(new Error('请输入正确的身份证号码'));
+      }
+      callback();
+    };
     var checkEmail = (rule, value, callback) => {
-      var reg = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+      var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
       if (!reg.test(value)) {
         return callback(new Error('请输入正确的邮箱'));
       }
@@ -294,7 +301,8 @@ export default {
           { required: true, message: '请输入你的民族', trigger: 'blur' }
         ],
         idCard: [
-          { required: true, message: '请输入你的身份证号码', trigger: 'blur' }
+          { required: true, message: '请输入你的身份证号码', trigger: 'blur' },
+          { validator: checkIdCard, trigger: 'blur' }
         ],
         birth_date: [
           { required: true, message: '出生日期不能为空', trigger: 'blur' }
@@ -313,6 +321,9 @@ export default {
         ],
         political: [
           { required: true, message: '政治面貌不能为空', trigger: 'blur' }
+        ],
+        email: [
+          { validator: checkEmail, trigger: 'blur' }
         ]
       }
     }
