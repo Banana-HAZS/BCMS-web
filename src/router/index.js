@@ -60,73 +60,45 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/info/customer',
     name: 'infoManage',
-    meta: { title: '信息管理', icon: 'el-icon-s-help' },
+    meta: { title: '客户管理', icon: 'el-icon-s-help' },
     children: [
       {
         path: 'customer',
         name: 'customer',
         component: () => import('@/views/info/customer'),
         meta: { title: '客户', icon: 'customer' }
-      },
-      {
-        path: 'trainer',
-        name: 'trainer',
-        component: () => import('@/views/info/trainer'),
-        meta: { title: '教练', icon: 'trainer' }
-      },
-      {
-        path: 'employee',
-        name: 'employee',
-        component: () => import('@/views/info/employee'),
-        meta: { title: '员工', icon: 'employee' }
-      },
-      {
-        path: 'card',
-        name: 'card',
-        component: () => import('@/views/info/card'),
-        meta: { title: '会员卡', icon: 'card' }
-      },
-      {
-        path: 'course',
-        name: 'course',
-        component: () => import('@/views/info/course'),
-        meta: { title: '课程', icon: 'course' }
-      },
-      {
-        path: 'equipment',
-        name: 'equipment',
-        component: () => import('@/views/info/equipment'),
-        meta: { title: '设备', icon: 'equipment' }
       }
     ]
   },
-
-  
   {
-    path: '/consumption',
+    path: '/setting',
     component: Layout,
-    redirect: '/consumption/card',
-    name: 'consumption',
-    meta: { title: '娱乐消费', icon: 'consumption' },
+    redirect: '/setting/employee',
+    name: 'settingManage',
+    meta: { title: '系统设置', icon: 'setting' },
     children: [
       {
-        path: 'card',
-        name: 'card',
-        component: () => import('@/views/consumption/card'),
-        meta: { title: '办卡', icon: 'card' }
+        path: 'employee',
+        name: 'employee',
+        component: () => import('@/views/setting/employee'),
+        meta: { title: '员工', icon: 'employee' }
       },
       {
-        path: 'trainer',
-        name: 'trainer',
-        component: () => import('@/views/consumption/trainer'),
-        meta: { title: '私教', icon: 'trainer' }
-      },
-      {
-        path: 'course',
-        name: 'course',
-        component: () => import('@/views/consumption/course'),
-        meta: { title: '培训', icon: 'course2' }
+        path: 'role',
+        name: 'role',
+        component: () => import('@/views/setting/role'),
+        meta: { title: '权限管理', icon: 'role' }
       }
+    ]
+  },
+  {
+    path: '/loan',
+    component: Layout,
+    redirect: '/loan/',
+    name: 'loanManage',
+    meta: { title: '信贷业务', icon: 'loan' },
+    children: [
+      
     ]
   },
   {

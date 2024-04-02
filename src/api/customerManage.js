@@ -1,14 +1,14 @@
 import request from '@/utils/request'
 
 export default{
-  getCustomerList(searchModel){
+  getCustomerList(searchModel){ //括号是接收前端的参数，params和data是传给后端的入参和Json参数
     return request({
       url: '/info/customer/list',
       method: 'get',
       params:{
         pageNo: searchModel.pageNo,
         pageSize: searchModel.pageSize,
-        id: searchModel.id,
+        idCard: searchModel.idCard,
         name: searchModel.name,
         phone: searchModel.phone
       }

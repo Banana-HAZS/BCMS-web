@@ -3,7 +3,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">X-fitness</h3>
+        <h3 class="title">商业银行信贷管理系统</h3>
       </div>
 
       <el-form-item prop="username">
@@ -181,7 +181,8 @@ $light_gray:#eee;
   overflow: hidden;
 
   background-image: url('../../assets/loginBak.jpg');
-  background-size: 100%;
+  background-size: 80%, cover;
+  // background-size: cover;
 
   .login-form {
     margin-left: 60%;

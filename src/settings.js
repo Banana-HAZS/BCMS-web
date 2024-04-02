@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: 'X-fitness',
+  title: '商业银行信贷管理系统',
 
   /**
    * @type {boolean} true | false
