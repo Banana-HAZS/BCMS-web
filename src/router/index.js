@@ -54,7 +54,6 @@ export const constantRoutes = [
       meta: { title: '首页', icon: 'dashboard', affix: true}
     }]
   },
-
   {
     path: '/info',
     component: Layout,
@@ -67,6 +66,27 @@ export const constantRoutes = [
         name: 'customer',
         component: () => import('@/views/info/customer'),
         meta: { title: '客户', icon: 'customer' }
+      }
+    ]
+  },
+  {
+    path: '/loan',
+    component: Layout,
+    redirect: '/loan/',
+    name: 'loanManage',
+    meta: { title: '信贷业务', icon: 'loan' },
+    children: [
+      {
+        path: 'loanApply',
+        name: 'loanApply',
+        component: () => import('@/views/loan/loanApply'),
+        meta: { title: '贷款申请', icon: 'loanApply' }
+      },
+      {
+        path: 'loanRecover',
+        name: 'loanRecover',
+        component: () => import('@/views/loan/loanRecover'),
+        meta: { title: '贷款收回', icon: 'loanRecover' }
       }
     ]
   },
@@ -89,16 +109,6 @@ export const constantRoutes = [
         component: () => import('@/views/setting/role'),
         meta: { title: '权限管理', icon: 'role' }
       }
-    ]
-  },
-  {
-    path: '/loan',
-    component: Layout,
-    redirect: '/loan/',
-    name: 'loanManage',
-    meta: { title: '信贷业务', icon: 'loan' },
-    children: [
-      
     ]
   },
   {
