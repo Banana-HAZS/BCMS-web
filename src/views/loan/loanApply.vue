@@ -3,7 +3,12 @@
     <!-- 搜索栏 -->
     <el-card id="search">
       <el-row>
-        <el-col :span="20">
+        <el-col :span="20" class="search-bar custom-search-bar">
+          <el-input
+            v-model="searchModel.loanNo"
+            placeholder="贷款流水号"
+            clearable
+          ></el-input>
           <el-input
             v-model="searchModel.customerAccount"
             placeholder="客户账号"
@@ -16,7 +21,7 @@
           ></el-input>
           <el-input
             v-model="searchModel.customerPhone"
-            placeholder="客户联系方式"
+            placeholder="预留手机号码"
             clearable
           ></el-input>
           <el-select
@@ -59,7 +64,7 @@
             </el-option>
           </el-select>
           <el-date-picker
-            v-model="applyDate"
+            v-model="searchModel.applyDate"
             type="daterange"
             align="right"
             unlink-panels
@@ -79,7 +84,7 @@
         </el-col>
         <el-col :span="4" align="right">
           <el-button
-            @click="openEditUI(null)"
+            @click="openEditUI()"
             type="primary"
             round
             icon="el-icon-plus"
@@ -99,6 +104,8 @@
             }}
           </template>
         </el-table-column>
+        <el-table-column prop="loanNo" label="贷款流水号" width="120">
+        </el-table-column>
         <el-table-column prop="customerAccount" label="客户账号" width="120">
         </el-table-column>
         <el-table-column prop="customerName" label="姓名" width="100">
@@ -106,6 +113,12 @@
         <el-table-column prop="price" label="贷款金额" width="120">
         </el-table-column>
         <el-table-column prop="loanType" label="贷款类型" width="100">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.loanType == 1">个人贷款</el-tag>
+            <el-tag v-if="scope.row.loanType == 2">商业贷款</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="applyExecutor" label="贷款申请执行人" width="80">
         </el-table-column>
         <el-table-column
           prop="applyDate"
@@ -115,6 +128,16 @@
         >
         </el-table-column>
         <el-table-column prop="auditType" label="审核状态" width="100">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.auditType == 1">待审核</el-tag>
+            <el-tag v-if="scope.row.auditType == 2">审核中</el-tag>
+            <el-tag v-if="scope.row.auditType == 3" type="success"
+              >已通过</el-tag
+            >
+            <el-tag v-if="scope.row.auditType == 4" type="danger"
+              >已驳回</el-tag
+            >
+          </template>
         </el-table-column>
         <el-table-column prop="auditorName" label="审核人" width="80">
         </el-table-column>
@@ -134,9 +157,21 @@
           :formatter="dateFormat"
           width="200"
         ></el-table-column>
-        <el-table-column prop="loanStatus" label="贷款状态" width="120">
+        <el-table-column prop="loanStatus" label="贷款状态" width="100">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.loanStatus == 1">等待审核</el-tag>
+            <el-tag v-if="scope.row.loanStatus == 2">待放款</el-tag>
+            <el-tag v-if="scope.row.loanStatus == 3">放款中</el-tag>
+            <el-tag v-if="scope.row.loanStatus == 4" type="success"
+              >已放款</el-tag
+            >
+            <el-tag v-if="scope.row.loanStatus == 5" type="danger"
+              >已驳回</el-tag
+            >
+            <el-tag v-if="scope.row.loanStatus == 6" type="info">已结清</el-tag>
+          </template>
         </el-table-column>
-        <el-table-column prop="interestRate" label="利率" width="120">
+        <el-table-column prop="interestRate" label="年利率" width="120">
         </el-table-column>
         <el-table-column
           prop="repayDate"
@@ -147,20 +182,31 @@
         <el-table-column
           prop="termRepayPrincipal"
           label="每期还款本金"
-          width="120"
+          width="110"
         >
         </el-table-column>
         <el-table-column
           prop="termRepayInterest"
           label="每期还款利息"
-          width="120"
+          width="110"
         >
         </el-table-column>
-        <el-table-column prop="termRepayPrice" label="每期还款金额" width="180">
+        <el-table-column prop="termRepayPrice" label="每期还款金额" width="110">
         </el-table-column>
-        <el-table-column prop="repayMethod" label="还款方式" width="180">
+        <el-table-column prop="repayMethod" label="还款方式" width="100">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.repayMethod == 1" type="info"
+              >等额本息还款</el-tag
+            >
+            <el-tag v-if="scope.row.repayMethod == 2" type="info"
+              >等额本金还款</el-tag
+            >
+            <el-tag v-if="scope.row.repayMethod == 3" type="info"
+              >按期付息</el-tag
+            >
+          </template>
         </el-table-column>
-        <el-table-column prop="repayTerm" label="还款期数(月)" width="180">
+        <el-table-column prop="repayTerm" label="还款期数(月)" width="50">
         </el-table-column>
         <el-table-column
           prop="loanDate"
@@ -169,32 +215,17 @@
           width="200"
         >
         </el-table-column>
-        <el-table-column
-          prop="lateChargeBase"
-          label="逾期罚息基数(130%-150%)"
-          width="180"
-        >
+        <el-table-column prop="lateChargeBase" label="逾期罚息基数" width="60">
         </el-table-column>
-        <el-table-column prop="loanPurpose" label="贷款用途" width="180">
+        <el-table-column prop="loanPurpose" label="贷款用途" width="150">
         </el-table-column>
         <el-table-column
           prop="recoveredInterest"
           label="已收回利息"
-          width="180"
+          width="100"
         >
         </el-table-column>
-        <el-table-column prop="customerPhone" label="客户联系方式" width="180">
-        </el-table-column>
-        <el-table-column label="操作" width="120">
-          <template slot-scope="scope">
-            <el-button
-              @click="openEditUI(scope.row.id)"
-              type="primary"
-              icon="el-icon-edit"
-              circle
-              size="mini"
-            ></el-button>
-          </template>
+        <el-table-column prop="customerPhone" label="客户联系方式" width="120">
         </el-table-column>
       </el-table>
     </el-card>
@@ -226,6 +257,8 @@
           <el-input
             v-model="loanApplyForm.idCard"
             autocomplete="off"
+            @blur="handleBlur"
+            @input="handleInput"
           ></el-input>
         </el-form-item>
         <!-- 查表 -->
@@ -237,6 +270,7 @@
           <el-input
             v-model="loanApplyForm.customerName"
             autocomplete="off"
+            :disabled="true"
           ></el-input>
         </el-form-item>
         <el-form-item
@@ -247,6 +281,7 @@
           <el-input
             v-model="loanApplyForm.customerPhone"
             autocomplete="off"
+            :disabled="true"
           ></el-input>
         </el-form-item>
         <el-form-item
@@ -254,7 +289,7 @@
           prop="loanType"
           :label-width="formLabelWidth"
         >
-          <el-radio-group v-model="employeeForm.loanType">
+          <el-radio-group v-model="loanApplyForm.loanType">
             <el-radio :label="1">个人贷款</el-radio>
             <el-radio :label="2">商业贷款</el-radio>
           </el-radio-group>
@@ -264,19 +299,26 @@
           prop="price"
           :label-width="formLabelWidth"
         >
-          <el-input v-model="loanApplyForm.price" autocomplete="off"></el-input>
+          <el-input
+            v-model="loanApplyForm.price"
+            autocomplete="off"
+            @blur="handleBlurCalculate"
+            @input="handleInputCalculate"
+          ></el-input>
         </el-form-item>
         <el-form-item
           label="还款方式"
           prop="repayMethod"
           :label-width="formLabelWidth"
         >
-          <el-select v-model="employeeForm.repayMethod" placeholder="请选择">
+          <el-select v-model="loanApplyForm.repayMethod" placeholder="请选择">
             <el-option
               v-for="item in repayMethodList"
               :key="item.value"
               :label="item.label"
               :value="item.value"
+              @blur="handleBlurCalculate"
+              @input="handleInputCalculate"
             >
             </el-option>
           </el-select>
@@ -289,68 +331,59 @@
           <el-input
             v-model="loanApplyForm.repayTerm"
             autocomplete="off"
+            @blur="handleBlurCalculate"
+            @input="handleInputCalculate"
           ></el-input>
         </el-form-item>
         <el-form-item
-          label="利率"
+          label="年利率"
           prop="interestRate"
           :label-width="formLabelWidth"
         >
           <el-input
             v-model="loanApplyForm.interestRate"
             autocomplete="off"
+            @blur="handleBlurCalculate"
+            @input="handleInputCalculate"
           ></el-input>
         </el-form-item>
         <el-form-item
-          label="还款日期(每一期的还款日期)"
+          label="还款日期"
           prop="repayDate"
           :label-width="formLabelWidth"
         >
-          <el-input
+          <el-date-picker
             v-model="loanApplyForm.repayDate"
-            autocomplete="off"
-          ></el-input>
+            type="date"
+            placeholder="选择日期"
+            :formatter="dateFormat"
+          >
+          </el-date-picker>
         </el-form-item>
         <!-- 自动计算 -->
-        <el-form-item
-          label="每期还款本金"
-          :label-width="formLabelWidth"
-        >
+        <el-form-item label="每期还款本金" :label-width="formLabelWidth">
           <el-input
             v-model="loanApplyForm.termRepayPrincipal"
             autocomplete="off"
+            :disabled="true"
           ></el-input>
         </el-form-item>
-        <el-form-item
-          label="每期还款利息"
-          :label-width="formLabelWidth"
-        >
+        <el-form-item label="每期还款利息" :label-width="formLabelWidth">
           <el-input
             v-model="loanApplyForm.termRepayInterest"
             autocomplete="off"
+            :disabled="true"
           ></el-input>
         </el-form-item>
-        <el-form-item
-          label="每期还款金额(本金+利息)"
-          :label-width="formLabelWidth"
-        >
+        <el-form-item label="每期还款金额" :label-width="formLabelWidth">
           <el-input
             v-model="loanApplyForm.termRepayPrice"
             autocomplete="off"
+            :disabled="true"
           ></el-input>
         </el-form-item>
         <el-form-item
-          label="贷款期限"
-          prop="loanDate"
-          :label-width="formLabelWidth"
-        >
-          <el-input
-            v-model="loanApplyForm.loanDate"
-            autocomplete="off"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="逾期罚息基数(130%-150%)"
+          label="逾期罚息基数"
           prop="lateChargeBase"
           :label-width="formLabelWidth"
         >
@@ -372,7 +405,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="saveLoanApply">确 定</el-button>
+        <el-button type="primary" @click="addLoanApply">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -429,6 +462,8 @@ export default {
     };
     return {
       //简单变量
+      isCalculateChanged: false,
+      isIdCardChanged: false,
       pickerOptions: {
         shortcuts: [
           {
@@ -520,14 +555,12 @@ export default {
           value: "3",
           label: "按期付息",
         },
-        {
-          value: "4",
-          label: "分期还款",
-        },
       ],
       value: "",
       formLabelWidth: "130px",
-      loanApplyForm: {},
+      loanApplyForm: {
+        lateChargeBase: 1.3,
+      },
       dialogFormVisible: false,
       title: "",
       total: 0,
@@ -563,7 +596,7 @@ export default {
           { validator: checkIdCard, trigger: "blur" },
         ],
         interestRate: [
-          { required: true, message: "请输入贷款利率", trigger: "blur" },
+          { required: true, message: "请输入贷款年利率", trigger: "blur" },
         ],
         repayDate: [
           { required: true, message: "请选择还款日期", trigger: "blur" },
@@ -584,6 +617,46 @@ export default {
     };
   },
   methods: {
+    calculateRepayment() {
+      const { price, repayMethod, repayTerm, interestRate } =
+        this.loanApplyForm;
+
+      if (!price || !repayMethod || !repayTerm || !interestRate) {
+        this.loanApplyForm.termRepayPrincipal = null;
+        this.loanApplyForm.termRepayInterest = null;
+        this.loanApplyForm.termRepayPrice = null;
+        return;
+      }
+
+      const monthlyInterestRate = interestRate / 12 / 100; // 月利率
+
+      if (repayMethod === "1") {
+        // 等额本息还款
+        const termRepayPrice =
+          (price *
+            monthlyInterestRate *
+            Math.pow(1 + monthlyInterestRate, repayTerm)) /
+          (Math.pow(1 + monthlyInterestRate, repayTerm) - 1);
+
+        this.loanApplyForm.termRepayPrincipal = null;
+        this.loanApplyForm.termRepayInterest = null;
+        this.loanApplyForm.termRepayPrice = termRepayPrice.toFixed(2);
+      } else if (repayMethod === "2") {
+        // 等额本金还款
+        const termRepayPrincipal = price / repayTerm;
+
+        this.loanApplyForm.termRepayPrincipal = termRepayPrincipal.toFixed(2);
+        this.loanApplyForm.termRepayInterest = null;
+        this.loanApplyForm.termRepayPrice = null;
+      } else if (repayMethod === "3") {
+        // 按期付息还款
+        const termRepayInterest = price * monthlyInterestRate;
+
+        this.loanApplyForm.termRepayPrincipal = null;
+        this.loanApplyForm.termRepayInterest = termRepayInterest.toFixed(2);
+        this.loanApplyForm.termRepayPrice = null;
+      }
+    },
     // 编写日期格式化方法
     dateFormat: function (row, column) {
       const date = row[column.property];
@@ -593,13 +666,13 @@ export default {
       // 这里的格式根据需求修改
       return moment(date).format("YYYY-MM-DD HH:mm:ss");
     },
-    saveLoanApply() {
+    addLoanApply() {
       //触发表单验证
       this.$refs.loanApplyFormRef.validate((valid) => {
         //valid就是验证结果
         if (valid) {
           //提交请求给后台
-          loanApplyApi.saveLoanApply(this.loanApplyForm).then((response) => {
+          loanApplyApi.addLoanApply(this.loanApplyForm).then((response) => {
             //已经提交成功，then里面是提交之后要做的处理,response是后端返回的内容
             //成功提示
             this.$message({
@@ -621,17 +694,48 @@ export default {
       this.loanApplyForm = {};
       this.$refs.loanApplyFormRef.clearValidate();
     },
-    openEditUI(id) {
-      if (id == null) {
-        this.title = "新增用户";
-      } else {
-        this.title = "修改用户";
-        //根据id查询用户数据
-        loanApplyApi.getLoanApplyById(id).then((response) => {
-          this.loanApplyForm = response.data;
-        });
-      }
+    openEditUI() {
+      this.title = "贷款申请";
       this.dialogFormVisible = true;
+    },
+    fetchUserInfo() {
+      loanApplyApi
+        .fetchUserInfo(this.loanApplyForm.idCard)
+        .then((response) => {
+          console.log(response.data.name, response.data.phone);
+          this.loanApplyForm.customerName = response.data.name;
+          this.loanApplyForm.customerPhone = response.data.phone;
+          this.$forceUpdate();
+        })
+        .catch((error) => {
+          // 请求失败，处理错误情况
+          this.loanApplyForm.customerName = "";
+          this.loanApplyForm.customerPhone = "";
+          this.$forceUpdate();
+        });
+    },
+    handleBlur() {
+      if (this.isIdCardChanged) {
+        // 调用后端接口查询用户信息
+        this.fetchUserInfo();
+        this.isIdCardChanged = false;
+      }
+    },
+    handleInput() {
+      this.isIdCardChanged = true;
+    },
+    handleBlurCalculate() {
+      if (this.isCalculateChanged) {
+        // 调用后端接口查询用户信息
+        this.calculateRepayment();
+        this.isCalculateChanged = false;
+      }
+    },
+    handleInputCalculate() {
+      this.loanApplyForm.termRepayPrincipal = null;
+      this.loanApplyForm.termRepayInterest = null;
+      this.loanApplyForm.termRepayPrice = null;
+      this.isCalculateChanged = true;
     },
     handleSizeChange(pageSize) {
       this.searchModel.pageSize = pageSize;
@@ -662,5 +766,11 @@ export default {
 
 .el-dialog .el-input {
   width: 85%;
+}
+
+.custom-search-bar .el-input,
+.custom-search-bar .el-button {
+  margin-bottom: 10px; /* 调整搜索栏之间的下方间距 */
+  margin-left: 10px;
 }
 </style>
