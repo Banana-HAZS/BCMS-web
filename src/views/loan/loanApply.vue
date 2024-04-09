@@ -97,14 +97,14 @@
     <!-- 结果列表 -->
     <el-card>
       <el-table :data="loanApplyList" stripe style="width: 100%">
-        <el-table-column label="#" width="100">
+        <el-table-column label="#" width="80">
           <template slot-scope="scope">
             {{
               (searchModel.pageNo - 1) * searchModel.pageSize + scope.$index + 1
             }}
           </template>
         </el-table-column>
-        <el-table-column prop="loanNo" label="贷款流水号" width="120">
+        <el-table-column prop="loanNo" label="贷款流水号" width="150">
         </el-table-column>
         <el-table-column prop="customerAccount" label="客户账号" width="120">
         </el-table-column>
@@ -311,14 +311,16 @@
           prop="repayMethod"
           :label-width="formLabelWidth"
         >
-          <el-select v-model="loanApplyForm.repayMethod" placeholder="请选择">
+          <el-select
+            v-model="loanApplyForm.repayMethod"
+            placeholder="请选择"
+            @change="handleChangeCalculate"
+          >
             <el-option
               v-for="item in repayMethodList"
               :key="item.value"
               :label="item.label"
               :value="item.value"
-              @blur="handleBlurCalculate"
-              @input="handleInputCalculate"
             >
             </el-option>
           </el-select>
@@ -366,6 +368,7 @@
             v-model="loanApplyForm.termRepayPrincipal"
             autocomplete="off"
             :disabled="true"
+            placeholder="按当期实际情况计算"
           ></el-input>
         </el-form-item>
         <el-form-item label="每期还款利息" :label-width="formLabelWidth">
@@ -373,6 +376,7 @@
             v-model="loanApplyForm.termRepayInterest"
             autocomplete="off"
             :disabled="true"
+            placeholder="按当期实际情况计算"
           ></el-input>
         </el-form-item>
         <el-form-item label="每期还款金额" :label-width="formLabelWidth">
@@ -380,6 +384,7 @@
             v-model="loanApplyForm.termRepayPrice"
             autocomplete="off"
             :disabled="true"
+            placeholder="按当期实际情况计算"
           ></el-input>
         </el-form-item>
         <el-form-item
@@ -541,7 +546,7 @@ export default {
           label: "已结清",
         },
       ],
-      //还款方式(1等额本息还款、2等额本金还款、3按期付息、4分期还款)
+      //还款方式(1等额本息还款、2等额本金还款、3按期付息)
       repayMethodList: [
         {
           value: "1",
@@ -616,6 +621,7 @@ export default {
       },
     };
   },
+
   methods: {
     calculateRepayment() {
       const { price, repayMethod, repayTerm, interestRate } =
@@ -628,7 +634,7 @@ export default {
         return;
       }
 
-      const monthlyInterestRate = interestRate / 12 / 100; // 月利率
+      const monthlyInterestRate = interestRate / 12; // 月利率
 
       if (repayMethod === "1") {
         // 等额本息还款
@@ -656,6 +662,7 @@ export default {
         this.loanApplyForm.termRepayInterest = termRepayInterest.toFixed(2);
         this.loanApplyForm.termRepayPrice = null;
       }
+      this.$forceUpdate();
     },
     // 编写日期格式化方法
     dateFormat: function (row, column) {
@@ -702,7 +709,6 @@ export default {
       loanApplyApi
         .fetchUserInfo(this.loanApplyForm.idCard)
         .then((response) => {
-          console.log(response.data.name, response.data.phone);
           this.loanApplyForm.customerName = response.data.name;
           this.loanApplyForm.customerPhone = response.data.phone;
           this.$forceUpdate();
@@ -732,10 +738,11 @@ export default {
       }
     },
     handleInputCalculate() {
-      this.loanApplyForm.termRepayPrincipal = null;
-      this.loanApplyForm.termRepayInterest = null;
-      this.loanApplyForm.termRepayPrice = null;
       this.isCalculateChanged = true;
+    },
+    handleChangeCalculate() {
+      this.calculateRepayment();
+      this.isCalculateChanged = false;
     },
     handleSizeChange(pageSize) {
       this.searchModel.pageSize = pageSize;
