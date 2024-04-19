@@ -456,6 +456,13 @@ export default {
       }
       callback();
     };
+    var checkInterestRate = (rule, value, callback) => {
+      var reg = /^\d+(\.\d+)?$/;
+      if (!reg.test(value)) {
+        return callback(new Error("请输入有效的贷款年利率"));
+      }
+      callback();
+    };
     var validatePass = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请再次输入密码"));
@@ -602,6 +609,7 @@ export default {
         ],
         interestRate: [
           { required: true, message: "请输入贷款年利率", trigger: "blur" },
+          { validator: checkInterestRate, trigger: "blur" },
         ],
         repayDate: [
           { required: true, message: "请选择还款日期", trigger: "blur" },
@@ -667,7 +675,7 @@ export default {
     // 编写日期格式化方法
     dateFormat: function (row, column) {
       const date = row[column.property];
-      if (date === undefined) {
+      if (date === undefined || date === null) {
         return "";
       }
       // 这里的格式根据需求修改
@@ -755,6 +763,11 @@ export default {
     getLoanApplyList() {
       loanApplyApi.getLoanApplyList(this.searchModel).then((response) => {
         this.loanApplyList = response.data.rows;
+        this.loanApplyList.forEach((row)=>{
+          row.termRepayInterest = row.termRepayInterest === null ? "按期计算": row.termRepayInterest;
+          row.termRepayPrice = row.termRepayPrice === null ? "按期计算": row.termRepayPrice;
+          row.termRepayPrincipal = row.termRepayPrincipal === null ? "按期计算": row.termRepayPrincipal; 
+        })
         this.total = response.data.total;
       });
     },
