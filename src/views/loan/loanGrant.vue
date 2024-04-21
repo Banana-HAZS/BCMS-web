@@ -25,6 +25,9 @@
           </el-date-picker>
           <el-button @click="getLoanApplyList" type="primary" round icon="el-icon-search">查询</el-button>
         </el-col>
+        <el-col :span="4" align="right">
+          <el-button @click="openEditUI()" type="primary" round icon="el-icon-plus" circle></el-button>
+        </el-col>
       </el-row>
     </el-card>
 
@@ -69,6 +72,9 @@
         <el-table-column prop="auditDate" label="审核日期" :formatter="dateFormat" width="200"></el-table-column>
         <el-table-column prop="auditOpinion" label="审核意见" width="200">
         </el-table-column>
+        <el-table-column prop="grantExecutor" label="贷款发放执行人" width="80">
+        </el-table-column>
+        <el-table-column prop="grantDate" label="贷款发放日期" :formatter="dateFormat" width="200"></el-table-column>
         <el-table-column prop="loanStatus" label="贷款状态" width="100">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.loanStatus == 1">等待审核</el-tag>
@@ -100,9 +106,9 @@
         </el-table-column>
         <el-table-column label="操作" width="150">
           <template slot-scope="scope">
-            <el-button @click="openAuditUI(scope.row.id, 1)" type="primary" size="mini"
-              v-if="scope.row.auditType == 1">审核</el-button>
-            <el-button @click="openAuditUI(scope.row.id, 2)" size="mini" type="danger" v-if="scope.row.auditType != 4 &&
+            <el-button @click="grantLoan(scope.row.id)" type="warning" size="mini"
+              v-if="scope.row.loanStatus == 2">放款</el-button>
+            <el-button @click="rejectLoan(scope.row.id)" size="mini" type="danger" v-if="scope.row.auditType != 4 &&
           scope.row.loanStatus != 4 &&
           scope.row.loanStatus != 5 &&
           scope.row.loanStatus != 6">驳回</el-button>
@@ -116,29 +122,16 @@
       :current-page="searchModel.pageNo" :page-sizes="[5, 10, 20, 50]" :page-size="searchModel.pageSize"
       layout="total, sizes, prev, pager, next, jumper" :total="total">
     </el-pagination>
-
-    <!-- 贷款审核对话框 -->
-    <el-dialog @close="clearAuditForm" :title="auditTitle" :visible.sync="auditFormVisible">
-      <el-form :model="auditLoanForm" ref="auditLoanFormRef" :rules="auditRules">
-        <el-form-item label="审核意见" prop="auditOpinion" :label-width="formLabelWidth">
-          <el-input v-model="auditLoanForm.auditOpinion" autocomplete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="auditFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="opLoan()">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script>
 import loanApplyApi from "@/api/loanApplyManage"; //导入Api
 import auditLoanApi from "@/api/auditLoanManage"; //导入Api
+import grantLoanApi from "@/api/grantLoanManage"; //导入Api
 import moment from "moment"; //导入日期处理包
 export default {
   data() {
-
     return {
       //简单变量
       op: 0,
@@ -236,16 +229,14 @@ export default {
       ],
       value: "",
       formLabelWidth: "130px",
-      auditLoanForm: {
+      grantLoanForm: {
         id: 0,
       },
-      auditId: 0,
-      auditFormVisible: false,
-      auditTitle: "",
       total: 0,
       searchModel: {
         pageNo: 1,
         pageSize: 10,
+        loanStatus: "2",
       },
       loanApplyList: [],
       auditRules: {
@@ -266,66 +257,44 @@ export default {
       // 这里的格式根据需求修改
       return moment(date).format("YYYY-MM-DD HH:mm:ss");
     },
-    auditLoan() {
-      this.auditLoanForm.id = this.auditId;
-      //触发表单验证
-      this.$refs.auditLoanFormRef.validate((valid) => {
-        //valid就是验证结果
-        if (valid) {
-          //提交请求给后台
-          auditLoanApi.auditLoan(this.auditLoanForm).then((response) => {
-            //已经提交成功，then里面是提交之后要做的处理,response是后端返回的内容
-            //成功提示
-            this.$message({
-              message: response.message,
-              type: "success",
-            });
-            //关闭对话框
-            this.auditFormVisible = false;
-            //刷新展示表格
-            this.getLoanApplyList();
-          });
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
-    },
-    rejectLoan() {
-      this.auditLoanForm.id = this.auditId;
+    grantLoan(id) {
+      this.grantLoanForm.id = id;
 
-      //提交请求给后台
-      auditLoanApi.rejectLoan(this.auditLoanForm).then((response) => {
-        //已经提交成功，then里面是提交之后要做的处理,response是后端返回的内容
-        //成功提示
-        this.$message({
-          message: response.message,
-          type: "success",
+      this.$confirm(`请确认是否发放贷款?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        grantLoanApi.grantLoan(this.grantLoanForm).then((response) => {
+          this.$message({
+            message: response.message,
+            type: "success",
+          });
+          this.getLoanApplyList();
         });
-        //关闭对话框
-        this.auditFormVisible = false;
-        //刷新展示表格
-        this.getLoanApplyList();
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消放款'
+        });
       });
     },
-    clearAuditForm() {
-      this.auditLoanForm = {};
-      this.auditId = 0;
-      this.op = 0;
-      this.$refs.auditLoanFormRef.clearValidate();
-    },
-    openAuditUI(id, op) {
-      this.op = op;
-      this.auditTitle = "贷款审核";
-      this.auditFormVisible = true;
-      this.auditId = id;
-    },
-    opLoan() {
-      if (this.op === 1) {
-        this.auditLoan();
-      } else if (this.op === 2) {
-        this.rejectLoan();
-      }
+    rejectLoan(id) {
+      this.grantLoanForm.id = id;
+
+      this.$confirm(`请确认是否驳回申请?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        auditLoanApi.rejectLoan(this.grantLoanForm).then((response) => {
+          this.$message({
+            message: response.message,
+            type: "success",
+          });
+          this.getLoanApplyList();
+        });
+      })
     },
     handleSizeChange(pageSize) {
       this.searchModel.pageSize = pageSize;

@@ -89,6 +89,12 @@ export const constantRoutes = [
         meta: { title: '贷款审核', icon: 'loanAudit' }
       },
       {
+        path: 'loanGrant',
+        name: 'loanGrant',
+        component: () => import('@/views/loan/loanGrant'),
+        meta: { title: '贷款发放', icon: 'loanGrant' }
+      },
+      {
         path: 'loanRecover',
         name: 'loanRecover',
         component: () => import('@/views/loan/loanRecover'),
