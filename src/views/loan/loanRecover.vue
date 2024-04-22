@@ -4,19 +4,62 @@
     <el-card id="search">
       <el-row>
         <el-col :span="20" class="search-bar custom-search-bar">
-          <el-input v-model="searchModel.loanNo" placeholder="贷款流水号" clearable></el-input>
-          <el-input v-model="searchModel.loanRecoverNo" placeholder="贷款收回流水号" clearable></el-input>
-          <el-input v-model="searchModel.customerAccount" placeholder="客户账号" clearable></el-input>
-          <el-input v-model="searchModel.customerName" placeholder="客户姓名" clearable></el-input>
-          <el-input v-model="searchModel.customerPhone" placeholder="预留手机号码" clearable></el-input>
-          <el-select v-model="searchModel.termStatus" clearable placeholder="还款状态">
-            <el-option v-for="item in termStatusList" :key="item.value" :label="item.label" :value="item.value">
+          <el-input
+            v-model="searchModel.loanNo"
+            placeholder="贷款流水号"
+            clearable
+          ></el-input>
+          <el-input
+            v-model="searchModel.loanRecoverNo"
+            placeholder="贷款收回流水号"
+            clearable
+          ></el-input>
+          <el-input
+            v-model="searchModel.customerAccount"
+            placeholder="客户账号"
+            clearable
+          ></el-input>
+          <el-input
+            v-model="searchModel.customerName"
+            placeholder="客户姓名"
+            clearable
+          ></el-input>
+          <el-input
+            v-model="searchModel.customerPhone"
+            placeholder="预留手机号码"
+            clearable
+          ></el-input>
+          <el-select
+            v-model="searchModel.termStatus"
+            clearable
+            placeholder="还款状态"
+          >
+            <el-option
+              v-for="item in termStatusList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
             </el-option>
           </el-select>
-          <el-date-picker v-model="searchModel.repayDate" type="daterange" align="right" unlink-panels
-            range-separator="至" start-placeholder="还款开始日期" end-placeholder="结束日期" :picker-options="pickerOptions">
+          <el-date-picker
+            v-model="searchModel.repayDate"
+            type="daterange"
+            align="right"
+            unlink-panels
+            range-separator="至"
+            start-placeholder="还款开始日期"
+            end-placeholder="结束日期"
+            :picker-options="pickerOptions"
+          >
           </el-date-picker>
-          <el-button @click="getLoanRecoverList" type="primary" round icon="el-icon-search">查询</el-button>
+          <el-button
+            @click="getLoanRecoverList"
+            type="primary"
+            round
+            icon="el-icon-search"
+            >查询</el-button
+          >
         </el-col>
       </el-row>
     </el-card>
@@ -27,13 +70,17 @@
         <el-table-column label="#" width="80">
           <template slot-scope="scope">
             {{
-          (searchModel.pageNo - 1) * searchModel.pageSize + scope.$index + 1
-        }}
+              (searchModel.pageNo - 1) * searchModel.pageSize + scope.$index + 1
+            }}
           </template>
         </el-table-column>
         <el-table-column prop="loanNo" label="贷款流水号" width="150">
         </el-table-column>
-        <el-table-column prop="loanRecoverNo" label="贷款收回流水号" width="150">
+        <el-table-column
+          prop="loanRecoverNo"
+          label="贷款收回流水号"
+          width="150"
+        >
         </el-table-column>
         <el-table-column prop="customerAccount" label="客户账号" width="120">
         </el-table-column>
@@ -43,17 +90,9 @@
         </el-table-column>
         <el-table-column prop="termRepayPrice" label="还款金额" width="110">
         </el-table-column>
-        <el-table-column
-          prop="termRepayPrincipal"
-          label="还款本金"
-          width="110"
-        >
+        <el-table-column prop="termRepayPrincipal" label="还款本金" width="110">
         </el-table-column>
-        <el-table-column
-          prop="termRepayInterest"
-          label="还款利息"
-          width="110"
-        >
+        <el-table-column prop="termRepayInterest" label="还款利息" width="110">
         </el-table-column>
         <el-table-column
           prop="repayDate"
@@ -63,18 +102,26 @@
         ></el-table-column>
         <el-table-column prop="termStatus" label="还款状态" width="100">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.loanStatus == 1">待还款</el-tag>
-            <el-tag v-if="scope.row.loanStatus == 2" type="success">当期已结清</el-tag>
-            <el-tag v-if="scope.row.loanStatus == 3" type="success">提前全部结清</el-tag>
-            <el-tag v-if="scope.row.loanStatus == 4" type="warning"
+            <el-tag v-if="scope.row.termStatus == 1">待还款</el-tag>
+            <el-tag v-if="scope.row.termStatus == 2" type="success"
+              >当期已结清</el-tag
+            >
+            <el-tag v-if="scope.row.termStatus == 3" type="success"
+              >提前全部结清</el-tag
+            >
+            <el-tag v-if="scope.row.termStatus == 4" type="warning"
               >已延期</el-tag
             >
-            <el-tag v-if="scope.row.loanStatus == 5" type="danger"
+            <el-tag v-if="scope.row.termStatus == 5" type="danger"
               >已逾期</el-tag
             >
           </template>
         </el-table-column>
-        <el-table-column prop="actualRepayPrice" label="实际还款金额" width="110"></el-table-column>
+        <el-table-column
+          prop="actualRepayPrice"
+          label="实际还款金额"
+          width="110"
+        ></el-table-column>
         <el-table-column
           prop="actualRepayDate"
           label="实际还款日期"
@@ -110,23 +157,42 @@
         </el-table-column>
         <el-table-column prop="customerPhone" label="客户联系方式" width="120">
         </el-table-column>
-        <el-table-column label="操作" width="150">
-          
-        </el-table-column>
+        <el-table-column label="操作" width="150"> </el-table-column>
       </el-table>
     </el-card>
 
     <!-- 分页组件 -->
-    <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
-      :current-page="searchModel.pageNo" :page-sizes="[5, 10, 20, 50]" :page-size="searchModel.pageSize"
-      layout="total, sizes, prev, pager, next, jumper" :total="total">
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="searchModel.pageNo"
+      :page-sizes="[5, 10, 20, 50]"
+      :page-size="searchModel.pageSize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total"
+    >
     </el-pagination>
 
     <!-- 贷款审核对话框 -->
-    <el-dialog @close="clearAuditForm" :title="auditTitle" :visible.sync="auditFormVisible">
-      <el-form :model="auditLoanForm" ref="auditLoanFormRef" :rules="auditRules">
-        <el-form-item label="审核意见" prop="auditOpinion" :label-width="formLabelWidth">
-          <el-input v-model="auditLoanForm.auditOpinion" autocomplete="off"></el-input>
+    <el-dialog
+      @close="clearAuditForm"
+      :title="auditTitle"
+      :visible.sync="auditFormVisible"
+    >
+      <el-form
+        :model="auditLoanForm"
+        ref="auditLoanFormRef"
+        :rules="auditRules"
+      >
+        <el-form-item
+          label="审核意见"
+          prop="auditOpinion"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="auditLoanForm.auditOpinion"
+            autocomplete="off"
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -143,7 +209,6 @@ import auditLoanApi from "@/api/auditLoanManage"; //导入Api
 import moment from "moment"; //导入日期处理包
 export default {
   data() {
-
     return {
       //简单变量
       op: 0,
@@ -218,7 +283,7 @@ export default {
       auditRules: {
         auditOpinion: [
           { required: true, message: "请输入审核意见", trigger: "blur" },
-        ]
+        ],
       },
     };
   },
