@@ -103,6 +103,21 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/report',
+    component: Layout,
+    redirect: '/report/',
+    name: 'reportManage',
+    meta: { title: '报表', icon: 'report' },
+    children: [
+      {
+        path: 'repayRecords',
+        name: 'repayRecords',
+        component: () => import('@/views/report/repayRecords'),
+        meta: { title: '还款记录', icon: 'repayRecords' }
+      }
+    ]
+  },
+  {
     path: '/setting',
     component: Layout,
     redirect: '/setting/employee',

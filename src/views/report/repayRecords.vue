@@ -130,18 +130,6 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="remainRepayPrice"
-          label="剩余待还金额"
-          width="110"
-        >
-          <template slot-scope="scope">
-            <span v-if="scope.row.remainRepayPrice">{{
-              scope.row.remainRepayPrice
-            }}</span>
-            <span v-else>已结清</span>
-          </template>
-        </el-table-column>
-        <el-table-column
           prop="actualRepayDate"
           label="实际结清日期"
           :formatter="dateFormat"
@@ -185,7 +173,12 @@
         </el-table-column>
         <el-table-column label="操作" width="150">
           <template slot-scope="scope">
-            <el-button @click="openAuditUI(scope.row.id, 1)" type="success" size="mini">还款</el-button>
+            <el-button
+              @click="openAuditUI(scope.row.id, 1)"
+              type="success"
+              size="mini"
+              >还款</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
