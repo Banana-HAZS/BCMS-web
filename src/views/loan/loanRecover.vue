@@ -144,13 +144,12 @@
         <el-table-column
           prop="actualRepayDate"
           label="实际结清日期"
-          :formatter="dateFormat"
           width="200"
         >
           <template slot-scope="scope">
-            <span v-if="scope.row.actualRepayDate">{{
-              scope.row.actualRepayDate
-            }}</span>
+            <span v-if="scope.row.actualRepayDate">
+              {{ moment(scope.row.actualRepayDate).format("YYYY-MM-DD HH:mm:ss") }}
+            </span>
             <span v-else>待结清</span>
           </template>
         </el-table-column>
@@ -183,9 +182,28 @@
         </el-table-column>
         <el-table-column prop="customerPhone" label="客户联系方式" width="120">
         </el-table-column>
-        <el-table-column label="操作" width="150">
+        <el-table-column label="操作" width="200">
           <template slot-scope="scope">
-            <el-button @click="openAuditUI(scope.row.id, 1)" type="success" size="mini">还款</el-button>
+            <el-button
+              @click="openRepayUI(scope.row)"
+              type="success"
+              size="mini"
+              v-if="
+                scope.row.termStatus == 1 ||
+                scope.row.termStatus == 4 ||
+                scope.row.termStatus == 5
+              "
+              >还款</el-button
+            >
+            <el-button
+              @click="openRepayUI(scope.row)"
+              type="success"
+              size="mini"
+              v-if="
+                scope.row.termStatus != 3
+              "
+              >提前结清</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -203,31 +221,29 @@
     >
     </el-pagination>
 
-    <!-- 贷款审核对话框 -->
+    <!-- 还款对话框 -->
     <el-dialog
-      @close="clearAuditForm"
-      :title="auditTitle"
-      :visible.sync="auditFormVisible"
+      @close="clearRepayForm"
+      title="还款"
+      :visible.sync="repayFormVisible"
     >
-      <el-form
-        :model="auditLoanForm"
-        ref="auditLoanFormRef"
-        :rules="auditRules"
-      >
+      <el-form :model="repayForm" ref="repayFormRef" :rules="repayRules">
         <el-form-item
           label="还款金额"
-          prop="auditOpinion"
+          prop="repayPrice"
           :label-width="formLabelWidth"
         >
           <el-input
-            v-model="auditLoanForm.auditOpinion"
+            v-model="repayForm.repayPrice"
             autocomplete="off"
+            :value="repayForm.repayPrice"
+            @input="onRepayPriceChange"
           ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="auditFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="opLoan()">确 定</el-button>
+        <el-button @click="repayFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="repay()">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -235,13 +251,12 @@
 
 <script>
 import loanRecoverApi from "@/api/loanRecoverManage"; //导入Api
-import auditLoanApi from "@/api/auditLoanManage"; //导入Api
 import moment from "moment"; //导入日期处理包
 export default {
   data() {
     return {
       //简单变量
-      op: 0,
+      moment: moment,
       pickerOptions: {
         shortcuts: [
           {
@@ -298,21 +313,35 @@ export default {
       ],
       value: "",
       formLabelWidth: "130px",
-      auditLoanForm: {
+      repayForm: {
         id: 0,
+        repayPrice: 0,
       },
-      auditId: 0,
-      auditFormVisible: false,
-      auditTitle: "",
+      repayFormVisible: false,
       total: 0,
       searchModel: {
         pageNo: 1,
         pageSize: 10,
       },
       loanRecoverList: [],
-      auditRules: {
-        auditOpinion: [
-          { required: true, message: "请输入审核意见", trigger: "blur" },
+      repayRules: {
+        repayPrice: [
+          {
+            required: true,
+            message: "请输入还款金额",
+            trigger: "blur",
+          },
+          {
+            validator: (rule, value, callback) => {
+              const floatValue = parseFloat(value);
+              if (floatValue < 0.01) {
+                callback(new Error("还款金额不能小于0.01"));
+              } else {
+                callback();
+              }
+            },
+            trigger: "blur",
+          },
         ],
       },
     };
@@ -328,24 +357,42 @@ export default {
       // 这里的格式根据需求修改
       return moment(date).format("YYYY-MM-DD HH:mm:ss");
     },
-    clearAuditForm() {
-      this.auditLoanForm = {};
-      this.auditId = 0;
-      this.op = 0;
-      this.$refs.auditLoanFormRef.clearValidate();
+    clearRepayForm() {
+      this.repayForm = {};
+      this.$refs.repayFormRef.clearValidate();
     },
-    openAuditUI(id, op) {
-      this.op = op;
-      this.auditTitle = "贷款审核";
-      this.auditFormVisible = true;
-      this.auditId = id;
+    onRepayPriceChange(value) {
+      this.repayForm.repayPrice = value;
     },
-    opLoan() {
-      if (this.op === 1) {
-        this.auditLoan();
-      } else if (this.op === 2) {
-        this.rejectLoan();
-      }
+    openRepayUI(row) {
+      this.repayFormVisible = true;
+      this.repayForm.id = row.id;
+      // 设置默认还款额为当期待还金额
+      this.repayForm.repayPrice = row.remainRepayPrice;
+    },
+    repay() {
+      //触发表单验证
+      this.$refs.repayFormRef.validate((valid) => {
+        //valid就是验证结果
+        if (valid) {
+          //提交请求给后台
+          loanRecoverApi.repay(this.repayForm).then((response) => {
+            //已经提交成功，then里面是提交之后要做的处理,response是后端返回的内容
+            //成功提示
+            this.$message({
+              message: response.message,
+              type: "success",
+            });
+            //关闭对话框
+            this.repayFormVisible = false;
+            //刷新展示表格
+            this.getLoanRecoverList();
+          });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
     },
     handleSizeChange(pageSize) {
       this.searchModel.pageSize = pageSize;

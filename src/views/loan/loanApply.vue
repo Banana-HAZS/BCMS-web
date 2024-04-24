@@ -225,6 +225,8 @@
           width="100"
         >
         </el-table-column>
+        <el-table-column prop="balance" label="剩余本金" width="120">
+        </el-table-column>
         <el-table-column prop="customerPhone" label="客户联系方式" width="120">
         </el-table-column>
       </el-table>

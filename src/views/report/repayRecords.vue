@@ -29,19 +29,6 @@
             placeholder="预留手机号码"
             clearable
           ></el-input>
-          <el-select
-            v-model="searchModel.termStatus"
-            clearable
-            placeholder="还款状态"
-          >
-            <el-option
-              v-for="item in termStatusList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
-            </el-option>
-          </el-select>
           <el-date-picker
             v-model="searchModel.repayDate"
             type="daterange"
@@ -54,7 +41,7 @@
           >
           </el-date-picker>
           <el-button
-            @click="getLoanRecoverList"
+            @click="getRepayRecordsList"
             type="primary"
             round
             icon="el-icon-search"
@@ -66,7 +53,7 @@
 
     <!-- 结果列表 -->
     <el-card>
-      <el-table :data="loanRecoverList" stripe style="width: 100%">
+      <el-table :data="repayRecordsList" stripe style="width: 100%">
         <el-table-column label="#" width="80">
           <template slot-scope="scope">
             {{
@@ -86,13 +73,7 @@
         </el-table-column>
         <el-table-column prop="customerName" label="姓名" width="100">
         </el-table-column>
-        <el-table-column prop="price" label="贷款金额" width="120">
-        </el-table-column>
-        <el-table-column prop="termRepayPrice" label="还款金额" width="110">
-        </el-table-column>
-        <el-table-column prop="termRepayPrincipal" label="还款本金" width="110">
-        </el-table-column>
-        <el-table-column prop="termRepayInterest" label="还款利息" width="110">
+        <el-table-column prop="repayPrice" label="还款金额" width="110">
         </el-table-column>
         <el-table-column
           prop="repayDate"
@@ -100,86 +81,16 @@
           :formatter="dateFormat"
           width="200"
         ></el-table-column>
-        <el-table-column prop="termStatus" label="还款状态" width="100">
-          <template slot-scope="scope">
-            <el-tag v-if="scope.row.termStatus == 1">待还款</el-tag>
-            <el-tag v-if="scope.row.termStatus == 2" type="success"
-              >当期已结清</el-tag
-            >
-            <el-tag v-if="scope.row.termStatus == 3" type="success"
-              >提前全部结清</el-tag
-            >
-            <el-tag v-if="scope.row.termStatus == 4" type="warning"
-              >已延期</el-tag
-            >
-            <el-tag v-if="scope.row.termStatus == 5" type="danger"
-              >已逾期</el-tag
-            >
-          </template>
-        </el-table-column>
         <el-table-column
           prop="actualRepayPrice"
-          label="实际还款金额"
+          label="累计还款金额"
           width="110"
-        >
-          <template slot-scope="scope">
-            <span v-if="scope.row.actualRepayPrice">{{
-              scope.row.actualRepayPrice
-            }}</span>
-            <span v-else>待还款</span>
-          </template>
+        ></el-table-column>
+        <el-table-column prop="remainRepayPrice" label="剩余待还金额" width="110">
         </el-table-column>
-        <el-table-column
-          prop="actualRepayDate"
-          label="实际结清日期"
-          :formatter="dateFormat"
-          width="200"
-        >
-          <template slot-scope="scope">
-            <span v-if="scope.row.actualRepayDate">{{
-              scope.row.actualRepayDate
-            }}</span>
-            <span v-else>待结清</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="delayNum" label="延期月数" width="60">
-        </el-table-column>
-        <el-table-column prop="repayMethod" label="还款方式" width="100">
-          <template slot-scope="scope">
-            <el-tag v-if="scope.row.repayMethod == 1" type="info"
-              >等额本息还款</el-tag
-            >
-            <el-tag v-if="scope.row.repayMethod == 2" type="info"
-              >等额本金还款</el-tag
-            >
-            <el-tag v-if="scope.row.repayMethod == 3" type="info"
-              >按期付息</el-tag
-            >
-          </template>
-        </el-table-column>
-        <el-table-column prop="interestRate" label="利率(年)" width="120">
-        </el-table-column>
-        <el-table-column prop="interestRateAdjust" label="利率调整" width="120">
-        </el-table-column>
-        <el-table-column prop="lateCharge" label="逾期罚息" width="60">
-        </el-table-column>
-        <el-table-column prop="currentTerm" label="当前期数" width="120">
-        </el-table-column>
-        <el-table-column prop="remainTerm" label="剩余期数" width="120">
-        </el-table-column>
-        <el-table-column prop="balance" label="剩余本金" width="120">
+        <el-table-column prop="currentTerm" label="当前期数" width="110">
         </el-table-column>
         <el-table-column prop="customerPhone" label="客户联系方式" width="120">
-        </el-table-column>
-        <el-table-column label="操作" width="150">
-          <template slot-scope="scope">
-            <el-button
-              @click="openAuditUI(scope.row.id, 1)"
-              type="success"
-              size="mini"
-              >还款</el-button
-            >
-          </template>
         </el-table-column>
       </el-table>
     </el-card>
@@ -195,46 +106,16 @@
       :total="total"
     >
     </el-pagination>
-
-    <!-- 贷款审核对话框 -->
-    <el-dialog
-      @close="clearAuditForm"
-      :title="auditTitle"
-      :visible.sync="auditFormVisible"
-    >
-      <el-form
-        :model="auditLoanForm"
-        ref="auditLoanFormRef"
-        :rules="auditRules"
-      >
-        <el-form-item
-          label="还款金额"
-          prop="auditOpinion"
-          :label-width="formLabelWidth"
-        >
-          <el-input
-            v-model="auditLoanForm.auditOpinion"
-            autocomplete="off"
-          ></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="auditFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="opLoan()">确 定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script>
-import loanRecoverApi from "@/api/loanRecoverManage"; //导入Api
-import auditLoanApi from "@/api/auditLoanManage"; //导入Api
+import repayRecordsApi from "@/api/repayRecordsManage"; //导入Api
 import moment from "moment"; //导入日期处理包
 export default {
   data() {
     return {
       //简单变量
-      op: 0,
       pickerOptions: {
         shortcuts: [
           {
@@ -266,48 +147,17 @@ export default {
           },
         ],
       },
-      //当期还款状态(1待还款、2当期已结清、3提前结清、4已延期、5已逾期)
-      termStatusList: [
-        {
-          value: "1",
-          label: "待还款",
-        },
-        {
-          value: "2",
-          label: "当期已结清",
-        },
-        {
-          value: "3",
-          label: "提前结清",
-        },
-        {
-          value: "4",
-          label: "已延期",
-        },
-        {
-          value: "5",
-          label: "已逾期",
-        },
-      ],
       value: "",
       formLabelWidth: "130px",
       auditLoanForm: {
         id: 0,
       },
-      auditId: 0,
-      auditFormVisible: false,
-      auditTitle: "",
       total: 0,
       searchModel: {
         pageNo: 1,
         pageSize: 10,
       },
-      loanRecoverList: [],
-      auditRules: {
-        auditOpinion: [
-          { required: true, message: "请输入审核意见", trigger: "blur" },
-        ],
-      },
+      repayRecordsList: [],
     };
   },
 
@@ -321,42 +171,25 @@ export default {
       // 这里的格式根据需求修改
       return moment(date).format("YYYY-MM-DD HH:mm:ss");
     },
-    clearAuditForm() {
-      this.auditLoanForm = {};
-      this.auditId = 0;
-      this.op = 0;
-      this.$refs.auditLoanFormRef.clearValidate();
-    },
-    openAuditUI(id, op) {
-      this.op = op;
-      this.auditTitle = "贷款审核";
-      this.auditFormVisible = true;
-      this.auditId = id;
-    },
-    opLoan() {
-      if (this.op === 1) {
-        this.auditLoan();
-      } else if (this.op === 2) {
-        this.rejectLoan();
-      }
-    },
     handleSizeChange(pageSize) {
       this.searchModel.pageSize = pageSize;
-      this.getLoanRecoverList();
+      this.getRepayRecordsList();
     },
     handleCurrentChange(pageNo) {
       this.searchModel.pageNo = pageNo;
-      this.getLoanRecoverList();
+      this.getRepayRecordsList();
     },
-    getLoanRecoverList() {
-      loanRecoverApi.getLoanRecoverList(this.searchModel).then((response) => {
-        this.loanRecoverList = response.data.rows;
+    getRepayRecordsList() {
+      const nowTime = new Date();
+      console.log(nowTime,'nowTime');
+      repayRecordsApi.getRepayRecordsList(this.searchModel).then((response) => {
+        this.repayRecordsList = response.data.rows;
         this.total = response.data.total;
       });
     },
   },
   created() {
-    this.getLoanRecoverList();
+    this.getRepayRecordsList();
   },
 };
 </script>
