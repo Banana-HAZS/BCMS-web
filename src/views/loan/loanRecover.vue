@@ -88,11 +88,19 @@
         </el-table-column>
         <el-table-column prop="price" label="贷款金额" width="120">
         </el-table-column>
-        <el-table-column prop="termRepayPrice" label="还款金额" width="110">
+        <el-table-column prop="termRepayPrice" label="本期还款金额" width="110">
         </el-table-column>
-        <el-table-column prop="termRepayPrincipal" label="还款本金" width="110">
+        <el-table-column
+          prop="termRepayPrincipal"
+          label="本期还款本金"
+          width="110"
+        >
         </el-table-column>
-        <el-table-column prop="termRepayInterest" label="还款利息" width="110">
+        <el-table-column
+          prop="termRepayInterest"
+          label="本期还款利息"
+          width="110"
+        >
         </el-table-column>
         <el-table-column
           prop="repayDate"
@@ -148,7 +156,9 @@
         >
           <template slot-scope="scope">
             <span v-if="scope.row.actualRepayDate">
-              {{ moment(scope.row.actualRepayDate).format("YYYY-MM-DD HH:mm:ss") }}
+              {{
+                moment(scope.row.actualRepayDate).format("YYYY-MM-DD HH:mm:ss")
+              }}
             </span>
             <span v-else>待结清</span>
           </template>
@@ -178,7 +188,7 @@
         </el-table-column>
         <el-table-column prop="remainTerm" label="剩余期数" width="120">
         </el-table-column>
-        <el-table-column prop="balance" label="剩余本金" width="120">
+        <el-table-column prop="balance" label="当期本金参考" width="120">
         </el-table-column>
         <el-table-column prop="customerPhone" label="客户联系方式" width="120">
         </el-table-column>
@@ -196,12 +206,10 @@
               >还款</el-button
             >
             <el-button
-              @click="openRepayUI(scope.row)"
+              @click="earlyPayoff(scope.row)"
               type="success"
               size="mini"
-              v-if="
-                scope.row.termStatus != 3
-              "
+              v-if="scope.row.termStatus != 3"
               >提前结清</el-button
             >
           </template>
@@ -393,6 +401,41 @@ export default {
           return false;
         }
       });
+    },
+    earlyPayoff(row) {
+      let earlyPayoffPrice;
+      let message;
+      if (row.termStatus == 2) {
+        earlyPayoffPrice = row.balance - row.termRepayPrincipal;
+        message = `当期贷款已结清，提前结清剩余贷款需要支付：\n${earlyPayoffPrice}元`;
+      } else {
+        // 注意：已结清和未结清状态下的balance不一样
+        earlyPayoffPrice =
+          row.balance + row.termRepayInterest - row.actualRepayPrice;
+        message = `当期贷款尚未结清，提前结清剩余贷款需要支付：\n${earlyPayoffPrice}元`;
+      }
+      this.$confirm(message, "请确认是否结清剩余贷款？", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          console.log(row.id,"row.id");
+          loanRecoverApi.earlyPayoff(row.id).then((response) => {
+            this.$message({
+              message: response.message,
+              type: "success",
+            });
+            //刷新展示表格
+            this.getLoanRecoverList();
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消提前结清贷款",
+          });
+        });
     },
     handleSizeChange(pageSize) {
       this.searchModel.pageSize = pageSize;
