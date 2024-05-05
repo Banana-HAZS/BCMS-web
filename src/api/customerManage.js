@@ -46,4 +46,10 @@ export default{
       method: 'delete'
     });
   },
+  getCustomerByIdCard(idCard){
+    return request({
+      url: `/info/customer/idCard/${idCard}`,
+      method: 'get'
+    });
+  },
 }

@@ -149,9 +149,6 @@ export default {
       },
       value: "",
       formLabelWidth: "130px",
-      auditLoanForm: {
-        id: 0,
-      },
       total: 0,
       searchModel: {
         pageNo: 1,
@@ -180,8 +177,6 @@ export default {
       this.getRepayRecordsList();
     },
     getRepayRecordsList() {
-      const nowTime = new Date();
-      console.log(nowTime,'nowTime');
       repayRecordsApi.getRepayRecordsList(this.searchModel).then((response) => {
         this.repayRecordsList = response.data.rows;
         this.total = response.data.total;

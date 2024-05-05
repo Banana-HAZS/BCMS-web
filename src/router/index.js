@@ -118,6 +118,33 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/risk',
+    component: Layout,
+    redirect: '/risk/',
+    name: 'riskManage',
+    meta: { title: '风险管理', icon: 'risk' },
+    children: [
+      {
+        path: 'customerLoanLimit',
+        name: 'customerLoanLimit',
+        component: () => import('@/views/risk/customerLoanLimit'),
+        meta: { title: '资产评估', icon: 'customerLoanLimit' }
+      },
+      {
+        path: 'customerCredit',
+        name: 'customerCredit',
+        component: () => import('@/views/risk/customerCredit'),
+        meta: { title: '信用等级', icon: 'customerCredit' }
+      },
+      {
+        path: 'creditScoreRecords',
+        name: 'creditScoreRecords',
+        component: () => import('@/views/risk/creditScoreRecords'),
+        meta: { title: '信用分变更', icon: 'creditScoreRecords' }
+      }
+    ]
+  },
+  {
     path: '/setting',
     component: Layout,
     redirect: '/setting/employee',
