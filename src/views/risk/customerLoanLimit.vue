@@ -89,8 +89,8 @@
                 </el-table-column>
                 <el-table-column prop="evaluateStatus" label="评估状态" width="80">
                     <template slot-scope="scope">
-                        <el-tag v-if="scope.row.loanLimitLevel == '1'" type="warning">待评估</el-tag>
-                        <el-tag v-if="scope.row.loanLimitLevel == '2'" type="success">已评估</el-tag>
+                        <el-tag v-if="scope.row.evaluateStatus == '1'" type="warning">待评估</el-tag>
+                        <el-tag v-if="scope.row.evaluateStatus == '2'" type="success">已评估</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column prop="evaluateDate" label="评估日期" :formatter="dateFormat" width="200"></el-table-column>
@@ -98,9 +98,9 @@
                 </el-table-column>
                 <el-table-column label="操作" width="150">
                     <template slot-scope="scope">
-                        <el-button @click="openEditUI(scope.row.id, 0)" type="primary" icon="el-icon-edit" circle
+                        <el-button @click="openEditUI(scope.row, 0)" type="primary" icon="el-icon-edit" circle
                             size="mini" v-if="scope.row.evaluateStatus == 1"></el-button>
-                        <el-button @click="openEditUI(scope.row.id, 1)" type="primary" size="mini"
+                        <el-button @click="openEditUI(scope.row, 1)" type="primary" size="mini"
                             v-if="scope.row.evaluateStatus == 1">评估</el-button>
                     </template>
                 </el-table-column>
@@ -132,51 +132,50 @@
                 </el-form-item>
 
                 <el-form-item label="职业" prop="occupation" :label-width="formLabelWidth">
-                    <el-input v-model="evaluateForm.occupation" autocomplete="off"></el-input>
+                    <el-input v-model="evaluateForm.occupation" autocomplete="off" :disabled="isEvaluate"></el-input>
                 </el-form-item>
                 <el-form-item label="工作单位" prop="workUnit" :label-width="formLabelWidth">
-                    <el-input v-model="evaluateForm.workUnit" autocomplete="off"></el-input>
+                    <el-input v-model="evaluateForm.workUnit" autocomplete="off" :disabled="isEvaluate"></el-input>
                 </el-form-item>
                 <el-form-item label="年收入(元)" prop="annualIncome" :label-width="formLabelWidth">
                     <el-input v-model="evaluateForm.annualIncome" autocomplete="off" @blur="handleBlurCalculate"
-                        @input="handleInputCalculate"></el-input>
+                        @input="handleInputCalculate" :disabled="isEvaluate"></el-input>
                 </el-form-item>
                 <el-form-item label="从事行业年限" prop="careerYears" :label-width="formLabelWidth">
-                    <el-input v-model="evaluateForm.careerYears" autocomplete="off"></el-input>
+                    <el-input v-model="evaluateForm.careerYears" autocomplete="off" :disabled="isEvaluate"></el-input>
                 </el-form-item>
                 <el-form-item label="负债金额(元)" prop="debtAmount" :label-width="formLabelWidth">
                     <el-input v-model="evaluateForm.debtAmount" autocomplete="off" @blur="handleBlurAssetCalculate"
-                        @input="handleInputAssetCalculate"></el-input>
+                        @input="handleInputAssetCalculate" :disabled="isEvaluate"></el-input>
                 </el-form-item>
                 <el-form-item label="房产估值" prop="houseProperty" :label-width="formLabelWidth">
                     <el-input v-model="evaluateForm.houseProperty" autocomplete="off" @blur="handleBlurAssetCalculate"
-                        @input="handleInputAssetCalculate"></el-input>
+                        @input="handleInputAssetCalculate" :disabled="isEvaluate"></el-input>
                 </el-form-item>
                 <el-form-item label="车产估值" prop="carProperty" :label-width="formLabelWidth">
                     <el-input v-model="evaluateForm.carProperty" autocomplete="off" @blur="handleBlurAssetCalculate"
-                        @input="handleInputAssetCalculate"></el-input>
+                        @input="handleInputAssetCalculate" :disabled="isEvaluate"></el-input>
                 </el-form-item>
                 <el-form-item label="每月用于还债金额(元)" prop="monthDebtRepay" :label-width="formLabelWidth">
                     <el-input v-model="evaluateForm.monthDebtRepay" autocomplete="off" @blur="handleBlurCalculate"
-                        @input="handleInputCalculate"></el-input>
+                        @input="handleInputCalculate" :disabled="isEvaluate"></el-input>
                 </el-form-item>
                 <el-form-item label="债务收入比" prop="dti" :label-width="formLabelWidth">
                     <el-input v-model="evaluateForm.dti" autocomplete="off" :disabled="true"></el-input>
                 </el-form-item>
                 <el-form-item label="储蓄(元)" prop="deposit" :label-width="formLabelWidth">
                     <el-input v-model="evaluateForm.deposit" autocomplete="off" @blur="handleBlurAssetCalculate"
-                        @input="handleInputAssetCalculate"></el-input>
+                        @input="handleInputAssetCalculate" :disabled="isEvaluate"></el-input>
                 </el-form-item>
                 <el-form-item label="投资金额(元)" prop="invest" :label-width="formLabelWidth">
                     <el-input v-model="evaluateForm.invest" autocomplete="off" @blur="handleBlurAssetCalculate"
-                        @input="handleInputAssetCalculate"></el-input>
+                        @input="handleInputAssetCalculate" :disabled="isEvaluate"></el-input>
                 </el-form-item>
                 <el-form-item label="资产估值(元)" prop="assetValuation" :label-width="formLabelWidth">
-                    <el-input v-model="evaluateForm.assetValuation" autocomplete="off"
-                        :disabled="isEvaluate"></el-input>
+                    <el-input v-model="evaluateForm.assetValuation" autocomplete="off" :disabled="true"></el-input>
                 </el-form-item>
                 <el-form-item label="资产净值(元)" prop="netAssetValue" :label-width="formLabelWidth">
-                    <el-input v-model="evaluateForm.netAssetValue" autocomplete="off" :disabled="isEvaluate"></el-input>
+                    <el-input v-model="evaluateForm.netAssetValue" autocomplete="off" :disabled="true"></el-input>
                 </el-form-item>
                 <el-form-item v-if="op == 1" label="贷款额度等级" prop="loanLimitLevel" :label-width="formLabelWidth">
                     <el-select v-model="evaluateForm.loanLimitLevel" placeholder="请选择">
@@ -217,7 +216,7 @@ export default {
         };
         return {
             //简单变量
-            isEvaluate: true,
+            isEvaluate: false,
             isAssetChanged: false,
             isCalculateChanged: false,
             op: 0,
@@ -363,6 +362,9 @@ export default {
                     { required: true, message: "投资金额不能为空", trigger: "blur" },
                     { validator: validatePositiveNumber, trigger: 'blur' }
                 ],
+                loanLimitLevel: [
+                    { required: true, message: "请选择客户贷款额度等级", trigger: "blur" }
+                ]
             },
         };
     },
@@ -395,7 +397,8 @@ export default {
                 this.evaluateForm;
 
             if (!debtAmount || !houseProperty || !carProperty || !deposit || !invest) {
-                this.evaluateForm.dti = null;
+                this.evaluateForm.assetValuation = null;
+                this.evaluateForm.netAssetValue = null;
                 return;
             }
 
@@ -446,17 +449,17 @@ export default {
                 }
             });
         },
-        openEditUI(id, op) {
+        openEditUI(row, op) {
             this.op = op;
-            this.isEvaluate = op ? false : true;
-            console.log(this.isEvaluate, 'isEvaluate');
-            if (id == null) {
+            if (row == null) {
                 this.evaluateTitle = "新增客户资产评估";
             } else {
                 this.evaluateTitle = op ? "贷款额度评估" : "修改资产评估信息";
+                this.evaluateTitle += " - " + row.customerName;
+                this.isEvaluate = op ? true : false;
                 //根据id查询用户数据
                 customerLoanLimitApi.getLoanLimitById({
-                    id: id
+                    id: row.id
                 }).then((response) => {
                     this.evaluateForm = response.data;
                 });
@@ -505,7 +508,6 @@ export default {
         },
         clearEvaluateForm() {
             this.evaluateForm = {};
-            this.auditId = 0;
             this.op = 0;
             this.$refs.evaluateFormRef.clearValidate();
         },

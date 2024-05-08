@@ -138,6 +138,15 @@
         <el-form-item label="银行预留手机号" prop="customerPhone" :label-width="formLabelWidth">
           <el-input v-model="loanApplyForm.customerPhone" autocomplete="off" :disabled="true"></el-input>
         </el-form-item>
+        <el-form-item label="资产评估" prop="evaluateStatus" :label-width="formLabelWidth">
+          <el-input v-model="loanApplyForm.evaluateStatus" autocomplete="off" :disabled="true"></el-input>
+        </el-form-item>
+        <el-form-item label="贷款额度等级" prop="loanLimitLevelName" :label-width="formLabelWidth">
+          <el-input v-model="loanApplyForm.loanLimitLevelName" autocomplete="off" :disabled="true"></el-input>
+        </el-form-item>
+        <el-form-item label="贷款额度上限" prop="loanLimit" :label-width="formLabelWidth">
+          <el-input v-model="loanApplyForm.loanLimit" autocomplete="off" :disabled="true"></el-input>
+        </el-form-item>
         <el-form-item label="贷款类型" prop="loanType" :label-width="formLabelWidth">
           <el-radio-group v-model="loanApplyForm.loanType">
             <el-radio :label="1">个人贷款</el-radio>
@@ -196,6 +205,8 @@
 
 <script>
 import loanApplyApi from "@/api/loanApplyManage"; //导入Api
+import customerApi from "@/api/customerManage"; //导入Api
+import customerLoanLimitApi from "@/api/customerLoanLimitManage"; //导入Api
 import moment from "moment"; //导入日期处理包
 export default {
   data() {
@@ -254,6 +265,19 @@ export default {
       var reg = /^\d+(\.\d+)?$/;
       if (!reg.test(value)) {
         return callback(new Error("请输入正确的格式"));
+      }
+      callback();
+    };
+    var checkPrice = (rule, value, callback) => {
+      var reg = /^\d+(\.\d+)?$/;
+      if (!reg.test(value)) {
+        return callback(new Error("请输入正确的格式"));
+      }
+      if (this.loanApplyForm.loanLimit == null || this.loanApplyForm.loanLimit == undefined) {
+        return callback(new Error("请先输入身份证号码查询贷款额度"));
+      }
+      if (value > this.loanApplyForm.loanLimit) {
+        return callback(new Error("贷款金额不能大于贷款限额"));
       }
       callback();
     };
@@ -386,7 +410,7 @@ export default {
         ],
         price: [
           { required: true, message: "请输入贷款金额", trigger: "blur" },
-          { validator: validatePositiveNumber, trigger: 'blur' }
+          { validator: checkPrice, trigger: 'blur' }
         ],
         loanType: [
           { required: true, message: "请选择贷款类型", trigger: "blur" },
@@ -407,9 +431,11 @@ export default {
         ],
         repayTerm: [
           { required: true, message: "还款期数不能为空", trigger: "blur" },
+          { validator: validatePositiveNumber, trigger: 'blur' }
         ],
         lateChargeBase: [
           { required: true, message: "逾期罚息基数不能为空", trigger: "blur" },
+          { validator: validatePositiveNumber, trigger: 'blur' }
         ],
         loanPurpose: [
           { required: true, message: "请输入贷款用途", trigger: "blur" },
@@ -501,12 +527,26 @@ export default {
       this.title = "贷款申请";
       this.dialogFormVisible = true;
     },
-    fetchUserInfo() {
-      loanApplyApi
-        .fetchUserInfo(this.loanApplyForm.idCard)
+    getCustomerByIdCard() {
+      if (this.loanApplyForm.idCard == null || this.loanApplyForm.idCard == undefined || this.loanApplyForm.idCard == '') {
+        this.loanApplyForm = {
+          lateChargeBase: 1.3,
+        };
+        loanApplyForm:
+        this.$message({
+          message: '请输入身份证号码',
+          type: 'warning'
+        });
+        return;
+      }
+      customerApi
+        .getCustomerByIdCard(this.loanApplyForm.idCard)
         .then((response) => {
           this.loanApplyForm.customerName = response.data.name;
           this.loanApplyForm.customerPhone = response.data.phone;
+          this.getLoanLimitByCustomer({
+            customerId: response.data.id
+          });
           this.$forceUpdate();
         })
         .catch((error) => {
@@ -516,10 +556,40 @@ export default {
           this.$forceUpdate();
         });
     },
+    getLoanLimitByCustomer(param) {
+      customerLoanLimitApi
+        .getLoanLimitByCustomer(param)
+        .then((response) => {
+          switch (response.data.evaluateStatus) {
+            case 1: {
+              this.loanApplyForm.evaluateStatus = "客户已提交资产评估，等待评估结果";
+              break;
+            }
+            case 2: {
+              this.loanApplyForm.evaluateStatus = "客户已完成资产评估";
+              break;
+            }
+            case 3: {
+              this.loanApplyForm.evaluateStatus = "客户未提交资产评估";
+              break;
+            }
+          }
+          this.loanApplyForm.loanLimitLevelName = response.data.loanLimitLevelName;
+          this.loanApplyForm.loanLimit = response.data.loanLimit;
+          this.$forceUpdate();
+        })
+        .catch((error) => {
+          // 请求失败，处理错误情况
+          this.loanApplyForm.evaluateStatus = "";
+          this.loanApplyForm.loanLimitLevelName = "";
+          this.loanApplyForm.loanLimit = "";
+          this.$forceUpdate();
+        });
+    },
     handleBlur() {
       if (this.isIdCardChanged) {
         // 调用后端接口查询用户信息
-        this.fetchUserInfo();
+        this.getCustomerByIdCard();
         this.isIdCardChanged = false;
       }
     },

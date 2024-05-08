@@ -22,6 +22,13 @@ export default{
       data: param //参数
     });
   },
+  getLoanLimitByCustomer(param){
+    return request({
+      url: '/info/customerLoanLimit/getLoanLimitByCustomer',
+      method: 'post',
+      data: param //参数
+    });
+  },
   updateCustomerLoanLimit(param){
     return request({
       url: '/info/customerLoanLimit/update',
@@ -44,7 +51,7 @@ export default{
       return this.updateCustomerLoanLimit(evaluateForm);
     }
     else{
-      return evaluateCustomerLoanLimit(evaluateForm);
+      return this.evaluateCustomerLoanLimit(evaluateForm);
     }
   }
 }
