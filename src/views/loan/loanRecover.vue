@@ -163,7 +163,7 @@
             <span v-else>待结清</span>
           </template>
         </el-table-column>
-        <el-table-column prop="delayNum" label="延期月数" width="60">
+        <el-table-column prop="delayTerm" label="延期期数" width="60">
         </el-table-column>
         <el-table-column prop="repayMethod" label="还款方式" width="100">
           <template slot-scope="scope">
@@ -182,7 +182,7 @@
         </el-table-column>
         <el-table-column prop="interestRateAdjust" label="利率调整" width="120">
         </el-table-column>
-        <el-table-column prop="lateCharge" label="逾期罚息" width="60">
+        <el-table-column prop="lateCharge" label="逾期罚息" width="120">
         </el-table-column>
         <el-table-column prop="currentTerm" label="当前期数" width="120">
         </el-table-column>
@@ -192,7 +192,7 @@
         </el-table-column>
         <el-table-column prop="customerPhone" label="客户联系方式" width="120">
         </el-table-column>
-        <el-table-column label="操作" width="200">
+        <el-table-column label="操作" width="250">
           <template slot-scope="scope">
             <el-button
               @click="openRepayUI(scope.row)"
@@ -209,8 +209,15 @@
               @click="earlyPayoff(scope.row)"
               type="success"
               size="mini"
-              v-if="scope.row.termStatus != 3"
+              v-if="scope.row.termStatus != 3 && scope.row.termStatus != 2"
               >提前结清</el-button
+            >
+            <el-button
+              @click="openDelayUI(scope.row)"
+              type="warning"
+              size="mini"
+              v-if="scope.row.termStatus == 1"
+              >展期</el-button
             >
           </template>
         </el-table-column>
@@ -244,7 +251,6 @@
           <el-input
             v-model="repayForm.repayPrice"
             autocomplete="off"
-            :value="repayForm.repayPrice"
             @input="onRepayPriceChange"
           ></el-input>
         </el-form-item>
@@ -252,6 +258,97 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="repayFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="repay()">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 贷款展期对话框 -->
+    <el-dialog
+      @close="clearDelayForm"
+      title="贷款展期"
+      :visible.sync="delayFormVisible"
+    >
+      <el-form :model="delayForm" ref="delayFormRef" :rules="delayRules">
+        <el-form-item
+          label="展期金额"
+          prop="delayPrice"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="delayForm.delayPrice"
+            autocomplete="off"
+            :disabled="true"
+          ></el-input>
+        </el-form-item>
+        <el-form-item
+          label="展期开始日期"
+          prop="delayStartDate"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="delayForm.delayStartDate"
+            autocomplete="off"
+            :disabled="true"
+          ></el-input>
+        </el-form-item>
+        <el-form-item
+          label="展期结束日期"
+          prop="delayEndDate"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="delayForm.delayEndDate"
+            autocomplete="off"
+            :disabled="true"
+          ></el-input>
+        </el-form-item>
+        <el-form-item
+          label="展期期数"
+          prop="delayTerms"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="delayForm.delayTerms"
+            autocomplete="off"
+            @change="calculateDelayEndDate"
+          ></el-input>
+        </el-form-item>
+        <el-form-item
+          label="展期手续费"
+          prop="delayCharge"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="delayForm.delayCharge"
+            autocomplete="off"
+            :disabled="true"
+          ></el-input>
+        </el-form-item>
+        <el-form-item
+          label="展期手续费基数"
+          prop="delayChargeBase"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="delayForm.delayChargeBase"
+            autocomplete="off"
+            :disabled="true"
+          ></el-input>
+        </el-form-item>
+        <el-form-item
+          label="展期利率调整"
+          prop="delayInterestAdjust"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="delayForm.delayInterestAdjust"
+            autocomplete="off"
+            :disabled="true"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="delayFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="delayPayoff()">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -262,6 +359,14 @@ import loanRecoverApi from "@/api/loanRecoverManage"; //导入Api
 import moment from "moment"; //导入日期处理包
 export default {
   data() {
+    var validatePositiveNumber = (rule, value, callback) => {
+      var reg = /^\d+(\.\d+)?$/;
+      if (!reg.test(value)) {
+        return callback(new Error("请输入正确的格式"));
+      }
+      callback();
+    };
+
     return {
       //简单变量
       moment: moment,
@@ -325,7 +430,11 @@ export default {
         id: 0,
         repayPrice: 0,
       },
+      delayForm: {
+        id: 0,
+      },
       repayFormVisible: false,
+      delayFormVisible: false,
       total: 0,
       searchModel: {
         pageNo: 1,
@@ -352,6 +461,12 @@ export default {
           },
         ],
       },
+      delayRules: {
+        delayTerms: [
+          { required: true, message: "展期期数不能为空", trigger: "blur" },
+          { validator: validatePositiveNumber, trigger: "blur" },
+        ],
+      },
     };
   },
 
@@ -365,18 +480,63 @@ export default {
       // 这里的格式根据需求修改
       return moment(date).format("YYYY-MM-DD HH:mm:ss");
     },
+    calculateDelayEndDate() {
+      if (this.delayForm.delayStartDate && this.delayForm.delayTerms) {
+        const startDate = new Date(this.delayForm.delayStartDate);
+        const delayTerms = parseInt(this.delayForm.delayTerms);
+        const endDate = new Date(
+          startDate.getTime() + delayTerms * 30 * 24 * 60 * 60 * 1000
+        );
+        this.delayForm.delayEndDate = this.formatDate(endDate);
+      } else {
+        this.delayForm.delayEndDate = "";
+      }
+      this.$forceUpdate();
+    },
+    formatDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const seconds = String(date.getSeconds()).padStart(2, "0");
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    },
     clearRepayForm() {
       this.repayForm = {};
       this.$refs.repayFormRef.clearValidate();
     },
-    onRepayPriceChange(value) {
+    clearDelayForm() {
+      this.delayForm = {};
+      this.$refs.delayFormRef.clearValidate();
+    },
+    async onRepayPriceChange(value) {
+      if (value == null || value == undefined) {
+        return;
+      }
       this.repayForm.repayPrice = value;
+      await this.$forceUpdate();
     },
     openRepayUI(row) {
       this.repayFormVisible = true;
       this.repayForm.id = row.id;
-      // 设置默认还款额为当期待还金额
       this.repayForm.repayPrice = row.remainRepayPrice;
+    },
+    async openDelayUI(row) {
+      this.delayForm.id = row.id;
+      this.delayForm.delayPrice = row.remainRepayPrice;
+      this.delayForm.delayStartDate = moment(row.repayDate).format(
+        "YYYY-MM-DD HH:mm:ss"
+      );
+      await this.initDelayForm();
+      this.delayFormVisible = true;
+    },
+    async initDelayForm() {
+      const response = await loanRecoverApi.initDelayForm();
+      this.delayForm.delayChargeBase = response.data.delayChargeBase;
+      this.delayForm.delayInterestAdjust = response.data.delayInterestAdjust;
+      this.delayForm.delayCharge =
+        this.delayForm.delayPrice * this.delayForm.delayChargeBase;
     },
     repay() {
       //触发表单验证
@@ -402,6 +562,43 @@ export default {
         }
       });
     },
+    delayPayoff() {
+      this.$refs.delayFormRef.validate((valid) => {
+        if (valid) {
+          // 手动格式化 delayStartDate 和 delayEndDate 属性
+          this.delayForm.delayStartDate = moment(
+            this.delayForm.delayStartDate
+          ).format("YYYY-MM-DDTHH:mm:ss");
+          this.delayForm.delayEndDate = moment(
+            this.delayForm.delayEndDate
+          ).format("YYYY-MM-DDTHH:mm:ss");
+          loanRecoverApi
+            .delayPayoff(this.delayForm)
+            .then((response) => {
+              this.$message({
+                message: response.message,
+                type: "success",
+              });
+              //关闭对话框
+              this.delayFormVisible = false;
+              //刷新展示表格
+              this.getLoanRecoverList();
+            })
+            .catch((error) => {
+              // 错误处理逻辑
+              this.delayForm.delayStartDate = moment(
+                this.delayForm.delayStartDate
+              ).format("YYYY-MM-DD HH:mm:ss");
+              this.delayForm.delayEndDate = moment(
+                this.delayForm.delayEndDate
+              ).format("YYYY-MM-DD HH:mm:ss");
+            });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
     earlyPayoff(row) {
       let earlyPayoffPrice;
       let message;
@@ -420,7 +617,7 @@ export default {
         type: "warning",
       })
         .then(() => {
-          console.log(row.id,"row.id");
+          console.log(row.id, "row.id");
           loanRecoverApi.earlyPayoff(row.id).then((response) => {
             this.$message({
               message: response.message,

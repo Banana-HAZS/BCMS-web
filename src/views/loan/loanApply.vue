@@ -4,29 +4,92 @@
     <el-card id="search">
       <el-row>
         <el-col :span="20" class="search-bar custom-search-bar">
-          <el-input v-model="searchModel.loanNo" placeholder="贷款流水号" clearable></el-input>
-          <el-input v-model="searchModel.customerAccount" placeholder="客户账号" clearable></el-input>
-          <el-input v-model="searchModel.customerName" placeholder="客户姓名" clearable></el-input>
-          <el-input v-model="searchModel.customerPhone" placeholder="预留手机号码" clearable></el-input>
-          <el-select v-model="searchModel.auditType" clearable placeholder="审核状态">
-            <el-option v-for="item in auditTypeList" :key="item.value" :label="item.label" :value="item.value">
+          <el-input
+            v-model="searchModel.loanNo"
+            placeholder="贷款流水号"
+            clearable
+          ></el-input>
+          <el-input
+            v-model="searchModel.customerAccount"
+            placeholder="客户账号"
+            clearable
+          ></el-input>
+          <el-input
+            v-model="searchModel.customerName"
+            placeholder="客户姓名"
+            clearable
+          ></el-input>
+          <el-input
+            v-model="searchModel.customerPhone"
+            placeholder="预留手机号码"
+            clearable
+          ></el-input>
+          <el-select
+            v-model="searchModel.auditType"
+            clearable
+            placeholder="审核状态"
+          >
+            <el-option
+              v-for="item in auditTypeList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
             </el-option>
           </el-select>
-          <el-select v-model="searchModel.loanStatus" clearable placeholder="贷款状态">
-            <el-option v-for="item in loanStatusList" :key="item.value" :label="item.label" :value="item.value">
+          <el-select
+            v-model="searchModel.loanStatus"
+            clearable
+            placeholder="贷款状态"
+          >
+            <el-option
+              v-for="item in loanStatusList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
             </el-option>
           </el-select>
-          <el-select v-model="searchModel.repayMethod" clearable placeholder="还款方式">
-            <el-option v-for="item in repayMethodList" :key="item.value" :label="item.label" :value="item.value">
+          <el-select
+            v-model="searchModel.repayMethod"
+            clearable
+            placeholder="还款方式"
+          >
+            <el-option
+              v-for="item in repayMethodList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
             </el-option>
           </el-select>
-          <el-date-picker v-model="searchModel.applyDate" type="daterange" align="right" unlink-panels
-            range-separator="至" start-placeholder="贷款申请开始日期" end-placeholder="结束日期" :picker-options="pickerOptions">
+          <el-date-picker
+            v-model="searchModel.applyDate"
+            type="daterange"
+            align="right"
+            unlink-panels
+            range-separator="至"
+            start-placeholder="贷款申请开始日期"
+            end-placeholder="结束日期"
+            :picker-options="pickerOptions"
+          >
           </el-date-picker>
-          <el-button @click="getLoanApplyList" type="primary" round icon="el-icon-search">查询</el-button>
+          <el-button
+            @click="getLoanApplyList"
+            type="primary"
+            round
+            icon="el-icon-search"
+            >查询</el-button
+          >
         </el-col>
         <el-col :span="4" align="right">
-          <el-button @click="openEditUI()" type="primary" round icon="el-icon-plus" circle></el-button>
+          <el-button
+            @click="openEditUI()"
+            type="primary"
+            round
+            icon="el-icon-plus"
+            circle
+          ></el-button>
         </el-col>
       </el-row>
     </el-card>
@@ -57,59 +120,110 @@
         </el-table-column>
         <el-table-column prop="applyExecutor" label="贷款申请执行人" width="80">
         </el-table-column>
-        <el-table-column prop="applyDate" label="申请日期" :formatter="dateFormat" width="200">
+        <el-table-column
+          prop="applyDate"
+          label="申请日期"
+          :formatter="dateFormat"
+          width="200"
+        >
         </el-table-column>
         <el-table-column prop="auditType" label="审核状态" width="100">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.auditType == 1">待审核</el-tag>
             <el-tag v-if="scope.row.auditType == 2">审核中</el-tag>
-            <el-tag v-if="scope.row.auditType == 3" type="success">已通过</el-tag>
-            <el-tag v-if="scope.row.auditType == 4" type="danger">已驳回</el-tag>
+            <el-tag v-if="scope.row.auditType == 3" type="success"
+              >已通过</el-tag
+            >
+            <el-tag v-if="scope.row.auditType == 4" type="danger"
+              >已驳回</el-tag
+            >
           </template>
         </el-table-column>
         <el-table-column prop="auditorName" label="审核人" width="80">
         </el-table-column>
-        <el-table-column prop="auditDate" label="审核日期" :formatter="dateFormat" width="200"></el-table-column>
+        <el-table-column
+          prop="auditDate"
+          label="审核日期"
+          :formatter="dateFormat"
+          width="200"
+        ></el-table-column>
         <el-table-column prop="auditOpinion" label="审核意见" width="200">
         </el-table-column>
         <el-table-column prop="grantExecutor" label="贷款发放执行人" width="80">
         </el-table-column>
-        <el-table-column prop="grantDate" label="贷款发放日期" :formatter="dateFormat" width="200"></el-table-column>
+        <el-table-column
+          prop="grantDate"
+          label="贷款发放日期"
+          :formatter="dateFormat"
+          width="200"
+        ></el-table-column>
         <el-table-column prop="loanStatus" label="贷款状态" width="100">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.loanStatus == 1">等待审核</el-tag>
             <el-tag v-if="scope.row.loanStatus == 2">待放款</el-tag>
             <el-tag v-if="scope.row.loanStatus == 3">放款中</el-tag>
-            <el-tag v-if="scope.row.loanStatus == 4" type="success">已放款</el-tag>
-            <el-tag v-if="scope.row.loanStatus == 5" type="danger">已驳回</el-tag>
+            <el-tag v-if="scope.row.loanStatus == 4" type="success"
+              >已放款</el-tag
+            >
+            <el-tag v-if="scope.row.loanStatus == 5" type="danger"
+              >已驳回</el-tag
+            >
             <el-tag v-if="scope.row.loanStatus == 6" type="info">已结清</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="interestRate" label="年利率" width="120">
         </el-table-column>
-        <el-table-column prop="repayDate" label="还款日期" :formatter="dateFormat" width="200"></el-table-column>
-        <el-table-column prop="termRepayPrincipal" label="每期还款本金" width="110">
+        <el-table-column
+          prop="repayDate"
+          label="还款日期"
+          :formatter="dateFormat"
+          width="200"
+        ></el-table-column>
+        <el-table-column
+          prop="termRepayPrincipal"
+          label="每期还款本金"
+          width="110"
+        >
         </el-table-column>
-        <el-table-column prop="termRepayInterest" label="每期还款利息" width="110">
+        <el-table-column
+          prop="termRepayInterest"
+          label="每期还款利息"
+          width="110"
+        >
         </el-table-column>
         <el-table-column prop="termRepayPrice" label="每期还款金额" width="110">
         </el-table-column>
         <el-table-column prop="repayMethod" label="还款方式" width="100">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.repayMethod == 1" type="info">等额本息还款</el-tag>
-            <el-tag v-if="scope.row.repayMethod == 2" type="info">等额本金还款</el-tag>
-            <el-tag v-if="scope.row.repayMethod == 3" type="info">按期付息</el-tag>
+            <el-tag v-if="scope.row.repayMethod == 1" type="info"
+              >等额本息还款</el-tag
+            >
+            <el-tag v-if="scope.row.repayMethod == 2" type="info"
+              >等额本金还款</el-tag
+            >
+            <el-tag v-if="scope.row.repayMethod == 3" type="info"
+              >按期付息</el-tag
+            >
           </template>
         </el-table-column>
         <el-table-column prop="repayTerm" label="还款期数(月)" width="50">
         </el-table-column>
-        <el-table-column prop="loanDate" label="贷款期限" :formatter="dateFormat" width="200">
+        <el-table-column
+          prop="loanDate"
+          label="贷款期限"
+          :formatter="dateFormat"
+          width="200"
+        >
         </el-table-column>
         <el-table-column prop="lateChargeBase" label="逾期罚息基数" width="60">
         </el-table-column>
         <el-table-column prop="loanPurpose" label="贷款用途" width="150">
         </el-table-column>
-        <el-table-column prop="recoveredInterest" label="已收回利息" width="100">
+        <el-table-column
+          prop="recoveredInterest"
+          label="已收回利息"
+          width="100"
+        >
         </el-table-column>
         <el-table-column prop="balance" label="剩余本金" width="120">
         </el-table-column>
@@ -119,80 +233,214 @@
     </el-card>
 
     <!-- 分页组件 -->
-    <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
-      :current-page="searchModel.pageNo" :page-sizes="[5, 10, 20, 50]" :page-size="searchModel.pageSize"
-      layout="total, sizes, prev, pager, next, jumper" :total="total">
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="searchModel.pageNo"
+      :page-sizes="[5, 10, 20, 50]"
+      :page-size="searchModel.pageSize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total"
+    >
     </el-pagination>
 
     <!-- 用户信息编辑对话框 -->
-    <el-dialog @close="clearForm" :title="title" :visible.sync="dialogFormVisible">
+    <el-dialog
+      @close="clearForm"
+      :title="title"
+      :visible.sync="dialogFormVisible"
+    >
       <el-form :model="loanApplyForm" ref="loanApplyFormRef" :rules="rules">
-        <el-form-item label="身份证号码" prop="idCard" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.idCard" autocomplete="off" @blur="handleBlur"
-            @input="handleInput"></el-input>
+        <el-form-item
+          label="身份证号码"
+          prop="idCard"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="loanApplyForm.idCard"
+            autocomplete="off"
+            @blur="handleBlur"
+            @input="handleInput"
+          ></el-input>
         </el-form-item>
         <!-- 查表 -->
-        <el-form-item label="姓名" prop="customerName" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.customerName" autocomplete="off" :disabled="true"></el-input>
+        <el-form-item
+          label="姓名"
+          prop="customerName"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="loanApplyForm.customerName"
+            autocomplete="off"
+            :disabled="true"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="银行预留手机号" prop="customerPhone" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.customerPhone" autocomplete="off" :disabled="true"></el-input>
+        <el-form-item
+          label="银行预留手机号"
+          prop="customerPhone"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="loanApplyForm.customerPhone"
+            autocomplete="off"
+            :disabled="true"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="资产评估" prop="evaluateStatus" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.evaluateStatus" autocomplete="off" :disabled="true"></el-input>
+        <el-form-item
+          label="资产评估"
+          prop="evaluateStatus"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="loanApplyForm.evaluateStatus"
+            autocomplete="off"
+            :disabled="true"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="贷款额度等级" prop="loanLimitLevelName" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.loanLimitLevelName" autocomplete="off" :disabled="true"></el-input>
+        <el-form-item
+          label="贷款额度等级"
+          prop="loanLimitLevelName"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="loanApplyForm.loanLimitLevelName"
+            autocomplete="off"
+            :disabled="true"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="贷款额度上限" prop="loanLimit" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.loanLimit" autocomplete="off" :disabled="true"></el-input>
+        <el-form-item
+          label="贷款额度上限"
+          prop="loanLimit"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="loanApplyForm.loanLimit"
+            autocomplete="off"
+            :disabled="true"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="贷款类型" prop="loanType" :label-width="formLabelWidth">
+        <el-form-item
+          label="贷款类型"
+          prop="loanType"
+          :label-width="formLabelWidth"
+        >
           <el-radio-group v-model="loanApplyForm.loanType">
             <el-radio :label="1">个人贷款</el-radio>
             <el-radio :label="2">商业贷款</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="贷款金额" prop="price" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.price" autocomplete="off" @blur="handleBlurCalculate"
-            @input="handleInputCalculate"></el-input>
+        <el-form-item
+          label="贷款金额"
+          prop="price"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="loanApplyForm.price"
+            autocomplete="off"
+            @blur="handleBlurCalculate"
+            @input="handleInputCalculate"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="还款方式" prop="repayMethod" :label-width="formLabelWidth">
-          <el-select v-model="loanApplyForm.repayMethod" placeholder="请选择" @change="handleChangeCalculate">
-            <el-option v-for="item in repayMethodList" :key="item.value" :label="item.label" :value="item.value">
+        <el-form-item
+          label="还款方式"
+          prop="repayMethod"
+          :label-width="formLabelWidth"
+        >
+          <el-select
+            v-model="loanApplyForm.repayMethod"
+            placeholder="请选择"
+            @change="handleChangeCalculate"
+          >
+            <el-option
+              v-for="item in repayMethodList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="还款期数(月)" prop="repayTerm" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.repayTerm" autocomplete="off" @blur="handleBlurCalculate"
-            @input="handleInputCalculate"></el-input>
+        <el-form-item
+          label="还款期数(月)"
+          prop="repayTerm"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="loanApplyForm.repayTerm"
+            autocomplete="off"
+            @blur="handleBlurCalculate"
+            @input="handleInputCalculate"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="年利率" prop="interestRate" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.interestRate" autocomplete="off" @blur="handleBlurCalculate"
-            @input="handleInputCalculate"></el-input>
+        <el-form-item
+          label="年利率"
+          prop="interestRate"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="loanApplyForm.interestRate"
+            autocomplete="off"
+            @blur="handleBlurCalculate"
+            @input="handleInputCalculate"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="还款日期" prop="repayDate" :label-width="formLabelWidth">
-          <el-date-picker v-model="loanApplyForm.repayDate" type="date" placeholder="选择日期" :formatter="dateFormat">
+        <el-form-item
+          label="还款日期"
+          prop="repayDate"
+          :label-width="formLabelWidth"
+        >
+          <el-date-picker
+            v-model="loanApplyForm.repayDate"
+            type="date"
+            placeholder="选择日期"
+            :formatter="dateFormat"
+          >
           </el-date-picker>
         </el-form-item>
         <!-- 自动计算 -->
         <el-form-item label="每期还款本金" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.termRepayPrincipal" autocomplete="off" :disabled="true"
-            placeholder="按当期实际情况计算"></el-input>
+          <el-input
+            v-model="loanApplyForm.termRepayPrincipal"
+            autocomplete="off"
+            :disabled="true"
+            placeholder="按当期实际情况计算"
+          ></el-input>
         </el-form-item>
         <el-form-item label="每期还款利息" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.termRepayInterest" autocomplete="off" :disabled="true"
-            placeholder="按当期实际情况计算"></el-input>
+          <el-input
+            v-model="loanApplyForm.termRepayInterest"
+            autocomplete="off"
+            :disabled="true"
+            placeholder="按当期实际情况计算"
+          ></el-input>
         </el-form-item>
         <el-form-item label="每期还款金额" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.termRepayPrice" autocomplete="off" :disabled="true"
-            placeholder="按当期实际情况计算"></el-input>
+          <el-input
+            v-model="loanApplyForm.termRepayPrice"
+            autocomplete="off"
+            :disabled="true"
+            placeholder="按当期实际情况计算"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="逾期罚息基数" prop="lateChargeBase" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.lateChargeBase" autocomplete="off"></el-input>
+        <el-form-item
+          label="逾期罚息基数"
+          prop="lateChargeBase"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="loanApplyForm.lateChargeBase"
+            autocomplete="off"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="贷款用途" prop="loanPurpose" :label-width="formLabelWidth">
-          <el-input v-model="loanApplyForm.loanPurpose" autocomplete="off"></el-input>
+        <el-form-item
+          label="贷款用途"
+          prop="loanPurpose"
+          :label-width="formLabelWidth"
+        >
+          <el-input
+            v-model="loanApplyForm.loanPurpose"
+            autocomplete="off"
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -273,7 +521,10 @@ export default {
       if (!reg.test(value)) {
         return callback(new Error("请输入正确的格式"));
       }
-      if (this.loanApplyForm.loanLimit == null || this.loanApplyForm.loanLimit == undefined) {
+      if (
+        this.loanApplyForm.loanLimit == null ||
+        this.loanApplyForm.loanLimit == undefined
+      ) {
         return callback(new Error("请先输入身份证号码查询贷款额度"));
       }
       if (value > this.loanApplyForm.loanLimit) {
@@ -410,7 +661,7 @@ export default {
         ],
         price: [
           { required: true, message: "请输入贷款金额", trigger: "blur" },
-          { validator: checkPrice, trigger: 'blur' }
+          { validator: checkPrice, trigger: "blur" },
         ],
         loanType: [
           { required: true, message: "请选择贷款类型", trigger: "blur" },
@@ -431,11 +682,11 @@ export default {
         ],
         repayTerm: [
           { required: true, message: "还款期数不能为空", trigger: "blur" },
-          { validator: validatePositiveNumber, trigger: 'blur' }
+          { validator: validatePositiveNumber, trigger: "blur" },
         ],
         lateChargeBase: [
           { required: true, message: "逾期罚息基数不能为空", trigger: "blur" },
-          { validator: validatePositiveNumber, trigger: 'blur' }
+          { validator: validatePositiveNumber, trigger: "blur" },
         ],
         loanPurpose: [
           { required: true, message: "请输入贷款用途", trigger: "blur" },
@@ -528,14 +779,17 @@ export default {
       this.dialogFormVisible = true;
     },
     getCustomerByIdCard() {
-      if (this.loanApplyForm.idCard == null || this.loanApplyForm.idCard == undefined || this.loanApplyForm.idCard == '') {
+      if (
+        this.loanApplyForm.idCard == null ||
+        this.loanApplyForm.idCard == undefined ||
+        this.loanApplyForm.idCard == ""
+      ) {
         this.loanApplyForm = {
           lateChargeBase: 1.3,
         };
-        loanApplyForm:
-        this.$message({
-          message: '请输入身份证号码',
-          type: 'warning'
+        loanApplyForm: this.$message({
+          message: "请输入身份证号码",
+          type: "warning",
         });
         return;
       }
@@ -545,7 +799,7 @@ export default {
           this.loanApplyForm.customerName = response.data.name;
           this.loanApplyForm.customerPhone = response.data.phone;
           this.getLoanLimitByCustomer({
-            customerId: response.data.id
+            customerId: response.data.id,
           });
           this.$forceUpdate();
         })
@@ -560,21 +814,17 @@ export default {
       customerLoanLimitApi
         .getLoanLimitByCustomer(param)
         .then((response) => {
-          switch (response.data.evaluateStatus) {
-            case 1: {
-              this.loanApplyForm.evaluateStatus = "客户已提交资产评估，等待评估结果";
+          switch (response.data.evaluatorId) {
+            case 0: {
+              this.loanApplyForm.evaluateStatus = "系统自动评估";
               break;
             }
-            case 2: {
-              this.loanApplyForm.evaluateStatus = "客户已完成资产评估";
-              break;
-            }
-            case 3: {
-              this.loanApplyForm.evaluateStatus = "客户未提交资产评估";
-              break;
+            default: {
+              this.loanApplyForm.evaluateStatus = "客户已提交资产评估";
             }
           }
-          this.loanApplyForm.loanLimitLevelName = response.data.loanLimitLevelName;
+          this.loanApplyForm.loanLimitLevelName =
+            response.data.loanLimitLevelName;
           this.loanApplyForm.loanLimit = response.data.loanLimit;
           this.$forceUpdate();
         })
@@ -621,10 +871,24 @@ export default {
       loanApplyApi.getLoanApplyList(this.searchModel).then((response) => {
         this.loanApplyList = response.data.rows;
         this.loanApplyList.forEach((row) => {
-          row.termRepayInterest = row.termRepayInterest === null ? "按期计算" : row.termRepayInterest;
-          row.termRepayPrice = row.termRepayPrice === null ? "按期计算" : row.termRepayPrice;
-          row.termRepayPrincipal = row.termRepayPrincipal === null ? "按期计算" : row.termRepayPrincipal;
-        })
+          switch (row.repayMethod) {
+            case 1: {
+              row.termRepayInterest = "按期计算";
+              row.termRepayPrincipal = "按期计算";
+              break;
+            }
+            case 2: {
+              row.termRepayInterest = "按期计算";
+              row.termRepayPrice = "按期计算";
+              break;
+            }
+            case 3: {
+              row.termRepayPrincipal = "按期计算";
+              row.termRepayPrice = "按期计算";
+              break;
+            }
+          }
+        });
         this.total = response.data.total;
       });
     },

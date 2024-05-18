@@ -30,31 +30,33 @@
             clearable
           ></el-input>
           <el-select
-            v-model="searchModel.changeType"
+            v-model="searchModel.overdueDurationType"
             clearable
-            placeholder="变动类型"
+            placeholder="逾期时长类型"
           >
             <el-option
-              v-for="item in changeTypeList"
+              v-for="item in overdueDurationTypeList"
               :key="item.value"
               :label="item.label"
               :value="item.value"
             >
             </el-option>
           </el-select>
-          <el-date-picker
-            v-model="searchModel.changeDate"
-            type="daterange"
-            align="right"
-            unlink-panels
-            range-separator="至"
-            start-placeholder="变动开始日期"
-            end-placeholder="结束日期"
-            :picker-options="pickerOptions"
+          <el-select
+            v-model="searchModel.remindStatus"
+            clearable
+            placeholder="提醒状态"
           >
-          </el-date-picker>
+            <el-option
+              v-for="item in remindStatusList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+            </el-option>
+          </el-select>
           <el-button
-            @click="getCreditScoreRecordsList"
+            @click="getOverdueRecordsList"
             type="primary"
             round
             icon="el-icon-search"
@@ -66,17 +68,13 @@
 
     <!-- 结果列表 -->
     <el-card>
-      <el-table :data="creditScoreRecordsList" stripe style="width: 100%">
+      <el-table :data="overdueRecordsList" stripe style="width: 100%">
         <el-table-column label="#" width="80">
           <template slot-scope="scope">
             {{
               (searchModel.pageNo - 1) * searchModel.pageSize + scope.$index + 1
             }}
           </template>
-        </el-table-column>
-        <el-table-column prop="customerAccount" label="客户账号" width="120">
-        </el-table-column>
-        <el-table-column prop="customerName" label="姓名" width="100">
         </el-table-column>
         <el-table-column prop="loanNo" label="贷款流水号" width="150">
         </el-table-column>
@@ -86,19 +84,63 @@
           width="150"
         >
         </el-table-column>
-        <el-table-column prop="changeDescription" label="变动原因" width="200">
+        <el-table-column prop="customerAccount" label="客户账号" width="120">
+        </el-table-column>
+        <el-table-column prop="customerName" label="姓名" width="100">
+        </el-table-column>
+        <el-table-column prop="overduePrice" label="逾期金额" width="110">
+        </el-table-column>
+        <el-table-column prop="overdueDurationType" label="逾期时长类型" width="110">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.overdueDurationType == '1'" type="info"
+              >普通逾期</el-tag
+            >
+            <el-tag v-if="scope.row.overdueDurationType == '2'" type="warning"
+              >较长逾期</el-tag
+            >
+            <el-tag v-if="scope.row.overdueDurationType == '3'" type="danger"
+              >严重逾期</el-tag
+            >
+          </template>
         </el-table-column>
         <el-table-column
-          prop="changeValue"
-          label="变动值"
-          width="110"
-        ></el-table-column>
-        <el-table-column
-          prop="changeDate"
-          label="变动日期"
+          prop="overdueStartDate"
+          label="逾期开始日期"
           :formatter="dateFormat"
           width="200"
         ></el-table-column>
+        <el-table-column
+          prop="overdueEndDate"
+          label="逾期结束日期"
+          :formatter="dateFormat"
+          width="200"
+        ></el-table-column>
+        <el-table-column
+          prop="overdueDays"
+          label="逾期天数"
+          width="110"
+        ></el-table-column>
+        <el-table-column
+          prop="lateCharge"
+          label="逾期罚息"
+          width="110"
+        >
+        </el-table-column>
+        <el-table-column prop="remindStatus" label="提醒状态" width="110">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.remindStatus == '1'" type="info"
+              >暂无</el-tag
+            >
+            <el-tag v-if="scope.row.remindStatus == '2'" type="warning"
+              >还款提醒</el-tag
+            >
+            <el-tag v-if="scope.row.remindStatus == '3'" type="success"
+              >已提醒</el-tag
+            >
+          </template>
+        </el-table-column>
+        <el-table-column prop="currentTerm" label="当前期数" width="110">
+        </el-table-column>
         <el-table-column prop="customerPhone" label="客户联系方式" width="120">
         </el-table-column>
       </el-table>
@@ -119,68 +161,39 @@
 </template>
 
 <script>
-import creditScoreRecordsApi from "@/api/creditScoreRecordsManage"; //导入Api
+import overdueRecordsApi from "@/api/overdueRecordsManage"; //导入Api
 import moment from "moment"; //导入日期处理包
 export default {
   data() {
     return {
       //简单变量
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
-            },
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
-            },
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            },
-          },
-        ],
-      },
-      changeTypeList: [
+      overdueDurationTypeList: [
         {
           value: "1",
-          label: "一次完整的贷款结清",
+          label: "普通逾期",
         },
         {
           value: "2",
-          label: "一期贷款收回结清",
+          label: "较长逾期",
         },
         {
           value: "3",
-          label: "一次延期还款",
+          label: "严重逾期",
+        }
+      ],
+      remindStatusList: [
+        {
+          value: "1",
+          label: "暂无",
         },
         {
-          value: "4",
-          label: "一次普通逾期还款",
+          value: "2",
+          label: "还款提醒",
         },
         {
-          value: "5",
-          label: "一次较长逾期还款",
-        },
-        {
-          value: "6",
-          label: "一次严重逾期还款",
-        },
+          value: "3",
+          label: "已提醒",
+        }
       ],
       value: "",
       formLabelWidth: "130px",
@@ -189,7 +202,7 @@ export default {
         pageNo: 1,
         pageSize: 10,
       },
-      creditScoreRecordsList: [],
+      overdueRecordsList: [],
     };
   },
 
@@ -205,21 +218,21 @@ export default {
     },
     handleSizeChange(pageSize) {
       this.searchModel.pageSize = pageSize;
-      this.getCreditScoreRecordsList();
+      this.getOverdueRecordsList();
     },
     handleCurrentChange(pageNo) {
       this.searchModel.pageNo = pageNo;
-      this.getCreditScoreRecordsList();
+      this.getOverdueRecordsList();
     },
-    getCreditScoreRecordsList() {
-        creditScoreRecordsApi.getCreditScoreRecordsList(this.searchModel).then((response) => {
-        this.creditScoreRecordsList = response.data.rows;
+    getOverdueRecordsList() {
+      overdueRecordsApi.getOverdueRecordsList(this.searchModel).then((response) => {
+        this.overdueRecordsList = response.data.rows;
         this.total = response.data.total;
       });
     },
   },
   created() {
-    this.getCreditScoreRecordsList();
+    this.getOverdueRecordsList();
   },
 };
 </script>

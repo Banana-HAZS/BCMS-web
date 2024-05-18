@@ -3,7 +3,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">商业银行信贷管理系统</h3>
+        <h3 class="title" style="color: #1C1C1C;">登录</h3>
       </div>
 
       <el-form-item prop="username">
@@ -181,7 +181,7 @@ $light_gray:#eee;
   overflow: hidden;
 
   background-image: url('../../assets/loginBak.jpg');
-  background-size: 80%, cover;
+  background-size: 100%, cover;
   // background-size: cover;
 
   .login-form {
@@ -189,7 +189,7 @@ $light_gray:#eee;
     position: relative;
     width: 520px;
     max-width: 100%;
-    padding: 160px 35px 0;
+    padding: 260px 35px 0;
     overflow: hidden;
   }
 

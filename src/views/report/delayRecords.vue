@@ -5,6 +5,16 @@
       <el-row>
         <el-col :span="20" class="search-bar custom-search-bar">
           <el-input
+            v-model="searchModel.loanNo"
+            placeholder="贷款流水号"
+            clearable
+          ></el-input>
+          <el-input
+            v-model="searchModel.loanRecoverNo"
+            placeholder="贷款收回流水号"
+            clearable
+          ></el-input>
+          <el-input
             v-model="searchModel.customerAccount"
             placeholder="客户账号"
             clearable
@@ -20,12 +30,12 @@
             clearable
           ></el-input>
           <el-select
-            v-model="searchModel.creditLevel"
+            v-model="searchModel.remindStatus"
             clearable
-            placeholder="信用评估等级"
+            placeholder="提醒状态"
           >
             <el-option
-              v-for="item in creditLevelList"
+              v-for="item in remindStatusList"
               :key="item.value"
               :label="item.label"
               :value="item.value"
@@ -33,7 +43,7 @@
             </el-option>
           </el-select>
           <el-button
-            @click="getCustomerCreditList"
+            @click="getDelayRecordsList"
             type="primary"
             round
             icon="el-icon-search"
@@ -45,7 +55,7 @@
 
     <!-- 结果列表 -->
     <el-card>
-      <el-table :data="customerCreditList" stripe style="width: 100%">
+      <el-table :data="delayRecordsList" stripe style="width: 100%">
         <el-table-column label="#" width="80">
           <template slot-scope="scope">
             {{
@@ -53,32 +63,56 @@
             }}
           </template>
         </el-table-column>
-        <el-table-column prop="customerAccount" label="客户账号" width="200">
+        <el-table-column prop="loanNo" label="贷款流水号" width="150">
         </el-table-column>
-        <el-table-column prop="customerName" label="姓名" width="150">
+        <el-table-column
+          prop="loanRecoverNo"
+          label="贷款收回流水号"
+          width="150"
+        >
         </el-table-column>
-        <el-table-column prop="creditScore" label="信用分" width="200">
+        <el-table-column prop="customerAccount" label="客户账号" width="120">
         </el-table-column>
-        <el-table-column prop="creditLevel" label="信用评估等级" width="200">
+        <el-table-column prop="customerName" label="姓名" width="100">
+        </el-table-column>
+        <el-table-column prop="delayPrice" label="展期金额" width="110">
+        </el-table-column>
+        <el-table-column prop="delayTerms" label="展期期数" width="110">
+        </el-table-column>
+        <el-table-column
+          prop="delayStartDate"
+          label="展期开始日期"
+          :formatter="dateFormat"
+          width="200"
+        ></el-table-column>
+        <el-table-column
+          prop="delayEndDate"
+          label="展期结束日期"
+          :formatter="dateFormat"
+          width="200"
+        ></el-table-column>
+        <el-table-column prop="delayCharge" label="展期手续费" width="110">
+        </el-table-column>
+        <el-table-column prop="delayChargeBase" label="展期手续费占比" width="120">
+        </el-table-column>
+        <el-table-column prop="delayInterestAdjust" label="展期利率调整" width="110">
+        </el-table-column>
+        <el-table-column prop="remindStatus" label="提醒状态" width="110">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.creditLevel == 'A'" type="success"
-              >信用极好</el-tag
+            <el-tag v-if="scope.row.remindStatus == '1'" type="info"
+              >暂无</el-tag
             >
-            <el-tag v-if="scope.row.creditLevel == 'B'" type="success"
-              >信用优秀</el-tag
+            <el-tag v-if="scope.row.remindStatus == '2'" type="warning"
+              >还款提醒</el-tag
             >
-            <el-tag v-if="scope.row.creditLevel == 'C'" type="success"
-              >信用良好</el-tag
-            >
-            <el-tag v-if="scope.row.creditLevel == 'D'" type="warning"
-              >信用中等</el-tag
-            >
-            <el-tag v-if="scope.row.creditLevel == 'E'" type="danger"
-              >信用较差</el-tag
+            <el-tag v-if="scope.row.remindStatus == '3'" type="success"
+              >已提醒</el-tag
             >
           </template>
         </el-table-column>
-        <el-table-column prop="customerPhone" label="客户联系方式">
+        <el-table-column prop="currentTerm" label="当前期数" width="110">
+        </el-table-column>
+        <el-table-column prop="customerPhone" label="客户联系方式" width="120">
         </el-table-column>
       </el-table>
     </el-card>
@@ -98,34 +132,25 @@
 </template>
 
 <script>
-import customerCreditApi from "@/api/customerCreditManage"; //导入Api
+import delayRecordsApi from "@/api/delayRecordsManage"; //导入Api
 import moment from "moment"; //导入日期处理包
 export default {
   data() {
     return {
       //简单变量
-      // 信用评估等级A(700-950：信用极好)、B(650-700：信用优秀)、C(600-650：信用良好)、D(550-600：信用中等)、E(350-550：信用较差)
-      creditLevelList: [
+      remindStatusList: [
         {
-          value: "A",
-          label: "信用极好",
+          value: "1",
+          label: "暂无",
         },
         {
-          value: "B",
-          label: "信用优秀",
+          value: "2",
+          label: "还款提醒",
         },
         {
-          value: "C",
-          label: "信用良好",
-        },
-        {
-          value: "D",
-          label: "信用中等",
-        },
-        {
-          value: "E",
-          label: "信用较差",
-        },
+          value: "3",
+          label: "已提醒",
+        }
       ],
       value: "",
       formLabelWidth: "130px",
@@ -134,7 +159,7 @@ export default {
         pageNo: 1,
         pageSize: 10,
       },
-      customerCreditList: [],
+      delayRecordsList: [],
     };
   },
 
@@ -150,23 +175,21 @@ export default {
     },
     handleSizeChange(pageSize) {
       this.searchModel.pageSize = pageSize;
-      this.getCustomerCreditList();
+      this.getDelayRecordsList();
     },
     handleCurrentChange(pageNo) {
       this.searchModel.pageNo = pageNo;
-      this.getCustomerCreditList();
+      this.getDelayRecordsList();
     },
-    getCustomerCreditList() {
-      customerCreditApi
-        .getCustomerCreditList(this.searchModel)
-        .then((response) => {
-          this.customerCreditList = response.data.rows;
-          this.total = response.data.total;
-        });
+    getDelayRecordsList() {
+      delayRecordsApi.getDelayRecordsList(this.searchModel).then((response) => {
+        this.delayRecordsList = response.data.rows;
+        this.total = response.data.total;
+      });
     },
   },
   created() {
-    this.getCustomerCreditList();
+    this.getDelayRecordsList();
   },
 };
 </script>

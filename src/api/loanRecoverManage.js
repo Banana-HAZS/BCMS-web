@@ -8,14 +8,14 @@ export default{
       data: searchModel
     });
   },
-  repay(param){ //括号是接收前端的参数，params和data是传给后端的入参和Json参数
+  repay(param){ 
     return request({
       url: '/info/loanRecover/repay',
       method: 'post',
       data: param
     });
   },
-  earlyPayoff(id){ //括号是接收前端的参数，params和data是传给后端的入参和Json参数
+  earlyPayoff(id){ 
     return request({
       url: '/info/loanRecover/earlyPayoff',
       method: 'post',
@@ -23,5 +23,18 @@ export default{
         id: id
       }
     });
-  }
+  },
+  initDelayForm(){ 
+    return request({
+      url: '/info/loanRecover/initDelayForm',
+      method: 'get'
+    });
+  },
+  delayPayoff(param){ 
+    return request({
+      url: '/info/loanRecover/delayPayoff',
+      method: 'post',
+      data: param
+    });
+  },
 }

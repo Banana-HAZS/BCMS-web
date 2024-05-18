@@ -114,6 +114,18 @@ export const constantRoutes = [
         name: 'repayRecords',
         component: () => import('@/views/report/repayRecords'),
         meta: { title: '还款记录', icon: 'repayRecords' }
+      },
+      {
+        path: 'delayRecords',
+        name: 'delayRecords',
+        component: () => import('@/views/report/delayRecords'),
+        meta: { title: '延期记录', icon: 'delayRecords' }
+      },
+      {
+        path: 'overdueRecords',
+        name: 'overdueRecords',
+        component: () => import('@/views/report/overdueRecords'),
+        meta: { title: '逾期记录', icon: 'overdueRecords' }
       }
     ]
   },
