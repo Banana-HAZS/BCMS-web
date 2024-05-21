@@ -29,19 +29,6 @@
             placeholder="预留手机号码"
             clearable
           ></el-input>
-          <el-select
-            v-model="searchModel.remindStatus"
-            clearable
-            placeholder="提醒状态"
-          >
-            <el-option
-              v-for="item in remindStatusList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
-            </el-option>
-          </el-select>
           <el-button
             @click="getDelayRecordsList"
             type="primary"
@@ -97,19 +84,6 @@
         </el-table-column>
         <el-table-column prop="delayInterestAdjust" label="展期利率调整" width="110">
         </el-table-column>
-        <el-table-column prop="remindStatus" label="提醒状态" width="110">
-          <template slot-scope="scope">
-            <el-tag v-if="scope.row.remindStatus == '1'" type="info"
-              >暂无</el-tag
-            >
-            <el-tag v-if="scope.row.remindStatus == '2'" type="warning"
-              >还款提醒</el-tag
-            >
-            <el-tag v-if="scope.row.remindStatus == '3'" type="success"
-              >已提醒</el-tag
-            >
-          </template>
-        </el-table-column>
         <el-table-column prop="currentTerm" label="当前期数" width="110">
         </el-table-column>
         <el-table-column prop="customerPhone" label="客户联系方式" width="120">
@@ -138,20 +112,6 @@ export default {
   data() {
     return {
       //简单变量
-      remindStatusList: [
-        {
-          value: "1",
-          label: "暂无",
-        },
-        {
-          value: "2",
-          label: "还款提醒",
-        },
-        {
-          value: "3",
-          label: "已提醒",
-        }
-      ],
       value: "",
       formLabelWidth: "130px",
       total: 0,

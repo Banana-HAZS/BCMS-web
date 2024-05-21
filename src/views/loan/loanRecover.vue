@@ -42,6 +42,19 @@
             >
             </el-option>
           </el-select>
+          <el-select
+            v-model="searchModel.remindStatus"
+            clearable
+            placeholder="提醒状态"
+          >
+            <el-option
+              v-for="item in remindStatusList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+            </el-option>
+          </el-select>
           <el-date-picker
             v-model="searchModel.repayDate"
             type="daterange"
@@ -190,9 +203,22 @@
         </el-table-column>
         <el-table-column prop="balance" label="当期本金参考" width="120">
         </el-table-column>
+        <el-table-column prop="remindStatus" label="提醒状态" width="110">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.remindStatus == '1'" type="info"
+              >暂无</el-tag
+            >
+            <el-tag v-if="scope.row.remindStatus == '2'" type="warning"
+              >还款提醒</el-tag
+            >
+            <el-tag v-if="scope.row.remindStatus == '3'" type="success"
+              >已提醒</el-tag
+            >
+          </template>
+        </el-table-column>
         <el-table-column prop="customerPhone" label="客户联系方式" width="120">
         </el-table-column>
-        <el-table-column label="操作" width="250">
+        <el-table-column label="操作" width="350">
           <template slot-scope="scope">
             <el-button
               @click="openRepayUI(scope.row)"
@@ -218,6 +244,13 @@
               size="mini"
               v-if="scope.row.termStatus == 1"
               >展期</el-button
+            >
+            <el-button
+              @click="confirmRemind(scope.row.id)"
+              type="warning"
+              size="mini"
+              v-if="scope.row.remindStatus == 2"
+              >确认提醒</el-button
             >
           </template>
         </el-table-column>
@@ -401,6 +434,20 @@ export default {
           },
         ],
       },
+      remindStatusList: [
+        {
+          value: "1",
+          label: "暂无",
+        },
+        {
+          value: "2",
+          label: "还款提醒",
+        },
+        {
+          value: "3",
+          label: "已提醒",
+        }
+      ],
       //当期还款状态(1待还款、2当期已结清、3提前结清、4已延期、5已逾期)
       termStatusList: [
         {
@@ -617,7 +664,6 @@ export default {
         type: "warning",
       })
         .then(() => {
-          console.log(row.id, "row.id");
           loanRecoverApi.earlyPayoff(row.id).then((response) => {
             this.$message({
               message: response.message,
@@ -633,6 +679,18 @@ export default {
             message: "已取消提前结清贷款",
           });
         });
+    },
+    confirmRemind(id) {
+      loanRecoverApi.confirmRemind({
+        id: id
+      }).then((response) => {
+        this.$message({
+          message: response.message,
+          type: "success",
+        });
+        //刷新展示表格
+        this.getLoanRecoverList();
+      });
     },
     handleSizeChange(pageSize) {
       this.searchModel.pageSize = pageSize;

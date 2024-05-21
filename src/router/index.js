@@ -110,6 +110,12 @@ export const constantRoutes = [
     meta: { title: '报表', icon: 'report' },
     children: [
       {
+        path: 'financialSummary',
+        name: 'financialSummary',
+        component: () => import('@/views/report/financialSummary'),
+        meta: { title: '财务汇总', icon: 'financialSummary' }
+      },
+      {
         path: 'repayRecords',
         name: 'repayRecords',
         component: () => import('@/views/report/repayRecords'),
@@ -119,7 +125,7 @@ export const constantRoutes = [
         path: 'delayRecords',
         name: 'delayRecords',
         component: () => import('@/views/report/delayRecords'),
-        meta: { title: '延期记录', icon: 'delayRecords' }
+        meta: { title: '展期记录', icon: 'delayRecords' }
       },
       {
         path: 'overdueRecords',
@@ -179,9 +185,18 @@ export const constantRoutes = [
   },
   {
     path: '/about',
-    name: 'about',
     component: Layout,
+    redirect: '/about/index',
+    name: 'about',
     meta: { title: '关于我们', icon: 'about' },
+    children: [
+      {
+        path: 'about',
+        name: 'about',
+        component: () => import('@/views/about/index'),
+        meta: { title: '关于我们', icon: 'about' }
+      }
+    ]
   },
 
   // 404 page must be placed at the end !!!

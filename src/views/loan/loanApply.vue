@@ -771,7 +771,9 @@ export default {
       });
     },
     clearForm() {
-      this.loanApplyForm = {};
+      this.loanApplyForm = {
+        lateChargeBase: 1.3,
+      };
       this.$refs.loanApplyFormRef.clearValidate();
     },
     openEditUI() {

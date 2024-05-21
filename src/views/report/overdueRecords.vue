@@ -143,6 +143,17 @@
         </el-table-column>
         <el-table-column prop="customerPhone" label="客户联系方式" width="120">
         </el-table-column>
+        <el-table-column label="操作" width="120">
+          <template slot-scope="scope">
+            <el-button
+              @click="confirmRemind(scope.row.id)"
+              type="warning"
+              size="mini"
+              v-if="scope.row.remindStatus == 2"
+              >确认提醒</el-button
+            >
+          </template>
+        </el-table-column>
       </el-table>
     </el-card>
 
@@ -208,6 +219,18 @@ export default {
 
   methods: {
     // 编写日期格式化方法
+    confirmRemind(id) {
+      overdueRecordsApi.confirmRemind({
+        id: id
+      }).then((response) => {
+        this.$message({
+          message: response.message,
+          type: "success",
+        });
+        //刷新展示表格
+        this.getOverdueRecordsList();
+      });
+    },
     dateFormat: function (row, column) {
       const date = row[column.property];
       if (date === undefined || date === null) {

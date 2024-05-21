@@ -37,4 +37,11 @@ export default{
       data: param
     });
   },
+  confirmRemind(param){ 
+    return request({
+      url: '/info/loanRecover/confirmRemind',
+      method: 'post',
+      data: param
+    });
+  },
 }

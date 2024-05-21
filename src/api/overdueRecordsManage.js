@@ -9,4 +9,11 @@ export default {
       data: searchModel,
     });
   },
+  confirmRemind(param){ 
+    return request({
+      url: '/info/overdueRecords/confirmRemind',
+      method: 'post',
+      data: param
+    });
+  },
 };
