@@ -54,153 +54,153 @@ export const constantRoutes = [
       meta: { title: '首页', icon: 'dashboard', affix: true}
     }]
   },
-  {
-    path: '/info',
-    component: Layout,
-    redirect: '/info/customer',
-    name: 'infoManage',
-    meta: { title: '客户管理', icon: 'el-icon-s-help' },
-    children: [
-      {
-        path: 'customer',
-        name: 'customer',
-        component: () => import('@/views/info/customer'),
-        meta: { title: '客户', icon: 'customer' }
-      }
-    ]
-  },
-  {
-    path: '/loan',
-    component: Layout,
-    redirect: '/loan/',
-    name: 'loanManage',
-    meta: { title: '信贷业务', icon: 'loan' },
-    children: [
-      {
-        path: 'loanApply',
-        name: 'loanApply',
-        component: () => import('@/views/loan/loanApply'),
-        meta: { title: '贷款申请', icon: 'loanApply' }
-      },
-      {
-        path: 'loanAudit',
-        name: 'loanAudit',
-        component: () => import('@/views/loan/loanAudit'),
-        meta: { title: '贷款审核', icon: 'loanAudit' }
-      },
-      {
-        path: 'loanGrant',
-        name: 'loanGrant',
-        component: () => import('@/views/loan/loanGrant'),
-        meta: { title: '贷款发放', icon: 'loanGrant' }
-      },
-      {
-        path: 'loanRecover',
-        name: 'loanRecover',
-        component: () => import('@/views/loan/loanRecover'),
-        meta: { title: '贷款收回', icon: 'loanRecover' }
-      }
-    ]
-  },
-  {
-    path: '/report',
-    component: Layout,
-    redirect: '/report/',
-    name: 'reportManage',
-    meta: { title: '报表', icon: 'report' },
-    children: [
-      {
-        path: 'financialSummary',
-        name: 'financialSummary',
-        component: () => import('@/views/report/financialSummary'),
-        meta: { title: '财务汇总', icon: 'financialSummary' }
-      },
-      {
-        path: 'repayRecords',
-        name: 'repayRecords',
-        component: () => import('@/views/report/repayRecords'),
-        meta: { title: '还款记录', icon: 'repayRecords' }
-      },
-      {
-        path: 'delayRecords',
-        name: 'delayRecords',
-        component: () => import('@/views/report/delayRecords'),
-        meta: { title: '展期记录', icon: 'delayRecords' }
-      },
-      {
-        path: 'overdueRecords',
-        name: 'overdueRecords',
-        component: () => import('@/views/report/overdueRecords'),
-        meta: { title: '逾期记录', icon: 'overdueRecords' }
-      }
-    ]
-  },
-  {
-    path: '/risk',
-    component: Layout,
-    redirect: '/risk/',
-    name: 'riskManage',
-    meta: { title: '风险管理', icon: 'risk' },
-    children: [
-      {
-        path: 'customerLoanLimit',
-        name: 'customerLoanLimit',
-        component: () => import('@/views/risk/customerLoanLimit'),
-        meta: { title: '资产评估', icon: 'customerLoanLimit' }
-      },
-      {
-        path: 'customerCredit',
-        name: 'customerCredit',
-        component: () => import('@/views/risk/customerCredit'),
-        meta: { title: '信用等级', icon: 'customerCredit' }
-      },
-      {
-        path: 'creditScoreRecords',
-        name: 'creditScoreRecords',
-        component: () => import('@/views/risk/creditScoreRecords'),
-        meta: { title: '信用分变更', icon: 'creditScoreRecords' }
-      }
-    ]
-  },
-  {
-    path: '/setting',
-    component: Layout,
-    redirect: '/setting/employee',
-    name: 'settingManage',
-    meta: { title: '系统设置', icon: 'setting' },
-    children: [
-      {
-        path: 'employee',
-        name: 'employee',
-        component: () => import('@/views/setting/employee'),
-        meta: { title: '员工', icon: 'employee' }
-      },
-      {
-        path: 'role',
-        name: 'role',
-        component: () => import('@/views/setting/role'),
-        meta: { title: '权限管理', icon: 'role' }
-      }
-    ]
-  },
-  {
-    path: '/about',
-    component: Layout,
-    redirect: '/about/index',
-    name: 'about',
-    meta: { title: '关于我们', icon: 'about' },
-    children: [
-      {
-        path: 'about',
-        name: 'about',
-        component: () => import('@/views/about/index'),
-        meta: { title: '关于我们', icon: 'about' }
-      }
-    ]
-  },
+  // {
+  //   path: '/info',
+  //   component: Layout,
+  //   redirect: '/info/customer',
+  //   name: 'infoManage',
+  //   meta: { title: '客户管理', icon: 'el-icon-s-help' },
+  //   children: [
+  //     {
+  //       path: 'customer',
+  //       name: 'customer',
+  //       component: () => import('@/views/info/customer'),
+  //       meta: { title: '客户', icon: 'customer' }
+  //     }
+  //   ]
+  // },
+  // {
+  //   path: '/loan',
+  //   component: Layout,
+  //   redirect: '/loan/',
+  //   name: 'loanManage',
+  //   meta: { title: '信贷业务', icon: 'loan' },
+  //   children: [
+  //     {
+  //       path: 'loanApply',
+  //       name: 'loanApply',
+  //       component: () => import('@/views/loan/loanApply'),
+  //       meta: { title: '贷款申请', icon: 'loanApply' }
+  //     },
+  //     {
+  //       path: 'loanAudit',
+  //       name: 'loanAudit',
+  //       component: () => import('@/views/loan/loanAudit'),
+  //       meta: { title: '贷款审核', icon: 'loanAudit' }
+  //     },
+  //     {
+  //       path: 'loanGrant',
+  //       name: 'loanGrant',
+  //       component: () => import('@/views/loan/loanGrant'),
+  //       meta: { title: '贷款发放', icon: 'loanGrant' }
+  //     },
+  //     {
+  //       path: 'loanRecover',
+  //       name: 'loanRecover',
+  //       component: () => import('@/views/loan/loanRecover'),
+  //       meta: { title: '贷款收回', icon: 'loanRecover' }
+  //     }
+  //   ]
+  // },
+  // {
+  //   path: '/report',
+  //   component: Layout,
+  //   redirect: '/report/',
+  //   name: 'reportManage',
+  //   meta: { title: '报表', icon: 'report' },
+  //   children: [
+  //     {
+  //       path: 'financialSummary',
+  //       name: 'financialSummary',
+  //       component: () => import('@/views/report/financialSummary'),
+  //       meta: { title: '财务汇总', icon: 'financialSummary' }
+  //     },
+  //     {
+  //       path: 'repayRecords',
+  //       name: 'repayRecords',
+  //       component: () => import('@/views/report/repayRecords'),
+  //       meta: { title: '还款记录', icon: 'repayRecords' }
+  //     },
+  //     {
+  //       path: 'delayRecords',
+  //       name: 'delayRecords',
+  //       component: () => import('@/views/report/delayRecords'),
+  //       meta: { title: '展期记录', icon: 'delayRecords' }
+  //     },
+  //     {
+  //       path: 'overdueRecords',
+  //       name: 'overdueRecords',
+  //       component: () => import('@/views/report/overdueRecords'),
+  //       meta: { title: '逾期记录', icon: 'overdueRecords' }
+  //     }
+  //   ]
+  // },
+  // {
+  //   path: '/risk',
+  //   component: Layout,
+  //   redirect: '/risk/',
+  //   name: 'riskManage',
+  //   meta: { title: '风险管理', icon: 'risk' },
+  //   children: [
+  //     {
+  //       path: 'customerLoanLimit',
+  //       name: 'customerLoanLimit',
+  //       component: () => import('@/views/risk/customerLoanLimit'),
+  //       meta: { title: '资产评估', icon: 'customerLoanLimit' }
+  //     },
+  //     {
+  //       path: 'customerCredit',
+  //       name: 'customerCredit',
+  //       component: () => import('@/views/risk/customerCredit'),
+  //       meta: { title: '信用等级', icon: 'customerCredit' }
+  //     },
+  //     {
+  //       path: 'creditScoreRecords',
+  //       name: 'creditScoreRecords',
+  //       component: () => import('@/views/risk/creditScoreRecords'),
+  //       meta: { title: '信用分变更', icon: 'creditScoreRecords' }
+  //     }
+  //   ]
+  // },
+  // {
+  //   path: '/setting',
+  //   component: Layout,
+  //   redirect: '/setting/employee',
+  //   name: 'settingManage',
+  //   meta: { title: '系统设置', icon: 'setting' },
+  //   children: [
+  //     {
+  //       path: 'employee',
+  //       name: 'employee',
+  //       component: () => import('@/views/setting/employee'),
+  //       meta: { title: '员工', icon: 'employee' }
+  //     },
+  //     {
+  //       path: 'role',
+  //       name: 'role',
+  //       component: () => import('@/views/setting/role'),
+  //       meta: { title: '权限管理', icon: 'role' }
+  //     }
+  //   ]
+  // },
+  // {
+  //   path: '/about',
+  //   component: Layout,
+  //   redirect: '/about/index',
+  //   name: 'about',
+  //   meta: { title: '关于我们', icon: 'about' },
+  //   children: [
+  //     {
+  //       path: 'about',
+  //       name: 'about',
+  //       component: () => import('@/views/about/index'),
+  //       meta: { title: '关于我们', icon: 'about' }
+  //     }
+  //   ]
+  // },
 
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  // // 404 page must be placed at the end !!!
+  // { path: '*', redirect: '/404', hidden: true }
 ]
 
 const createRouter = () => new Router({

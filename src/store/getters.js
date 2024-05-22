@@ -5,6 +5,7 @@ const getters = {
   picture: state => state.user.picture,
   name: state => state.user.name,
   isLoggedIn: state => state.isLoggedIn,
+  menuList: state => state.user.menuList,
   
   visitedViews: state => state.tagsView.visitedViews,
   cachedViews: state => state.tagsView.cachedViews,

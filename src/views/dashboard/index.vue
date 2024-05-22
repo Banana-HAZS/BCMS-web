@@ -11,8 +11,7 @@
         class="user-name"
         style="
           text-align: right;
-          font-family: 'PingFang SC', 'Microsoft YaHei', 'Arial', sans-serif;
-          font-weight: 300;
+          font-size: 22px;
         "
       >
         {{ locationGreeting }}
